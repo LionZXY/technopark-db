@@ -1,4 +1,9 @@
 package technopark_db.models.api
 
-data class Vote(val nickname: String,
-                val voice: Int)
+import com.fasterxml.jackson.annotation.JsonProperty
+
+data class Vote(
+        @JsonProperty("nickname")
+        val nickname: String,
+        @JsonProperty("voice")
+        val voice: Int)

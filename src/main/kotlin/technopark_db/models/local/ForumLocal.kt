@@ -5,4 +5,4 @@ data class ForumLocal(
         var title: String,
         var postCount: Int = 0,
         var threads: Int = 0 /* Веток */,
-        var user: UserLocal)
+        var author: String)

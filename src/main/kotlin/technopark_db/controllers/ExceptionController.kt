@@ -6,20 +6,20 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
-import javax.servlet.http.HttpServletRequest
+import technopark_db.models.api.ErrorModel
 
 
 @ControllerAdvice
 class ExceptionController {
 
     @ExceptionHandler(Exception::class)
-    fun handleAllError(req: HttpServletRequest, ex: Exception): ResponseEntity<Error> {
+    fun handleAllError(ex: Exception): ResponseEntity<ErrorModel> {
         val responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.javaClass, ResponseStatus::class.java)
         if (responseStatus != null) {
             var reason: String? = ex.message ?: responseStatus.reason;
 
-            return ResponseEntity.status(responseStatus.code).body(Error(reason))
+            return ResponseEntity.status(responseStatus.code).body(ErrorModel(reason))
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Error(ex.message))
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorModel(ex.message))
     }
 }
