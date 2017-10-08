@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import technopark_db.models.local.UserLocal
 import java.sql.ResultSet
 import java.util.*
@@ -18,17 +19,19 @@ open class UserDao(private val template: JdbcTemplate,
         private const val COLUMN_NICKNAME = "nickname" // Primary key
 
         val USERMAPPER = RowMapper<UserLocal> { rs: ResultSet, _ ->
-            UserLocal(rs.getString(COLUMN_NICKNAME),
+            val v = rs.metaData.columnCount
+            val tmp = UserLocal(rs.getString(COLUMN_NICKNAME),
                     rs.getString(COLUMN_EMAIL),
                     rs.getString(COLUMN_FULLNAME),
                     rs.getString(COLUMN_ABOUT))
+            return@RowMapper tmp
         }
     }
 
     fun getUsers(): List<UserLocal> {
         try {
             return template.query("SELECT * FROM \"user\"", USERMAPPER);
-        } catch (e: Exception) {
+        } catch (e: Exception){
             e.printStackTrace()
         }
         return Collections.emptyList()
