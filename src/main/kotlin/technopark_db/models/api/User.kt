@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class User(
         @JsonProperty("email")
-        val email: String,
+        var email: String,
         @JsonProperty("fullname")
-        val fullname: String,
+        var fullname: String,
         @JsonProperty("about")
         var about: String,
         @JsonProperty("nickname")
-        var nickname: String)
+        var nickname: String? = "") {
+    constructor() : this("", "", "", "")
+}

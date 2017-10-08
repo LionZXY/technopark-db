@@ -4,4 +4,5 @@ data class UserLocal(
         var nickname: String,
         val email: String,
         val fullname: String,
-        val about: String)
+        val about: String){
+}

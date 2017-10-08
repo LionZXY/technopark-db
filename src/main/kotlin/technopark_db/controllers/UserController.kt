@@ -1,7 +1,7 @@
 package technopark_db.controllers
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import technopark_db.models.api.User
 import technopark_db.models.local.UserLocal
 import technopark_db.repositories.UserRepository
 
@@ -9,9 +9,9 @@ import technopark_db.repositories.UserRepository
 class UserController(
         private val userRepository: UserRepository) {
 
-    @GetMapping("/api/signup")
-    fun test(): List<UserLocal> {
-        val test = userRepository.test()
-        return test;
+    @PostMapping("/user/{nickname}/create")
+    fun сreate(@PathVariable nickname: String, @RequestBody(required = false) user: User): UserLocal {
+        user.nickname = nickname
+        return userRepository.create(user);
     }
 }

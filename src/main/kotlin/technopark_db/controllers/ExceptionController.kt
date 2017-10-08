@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
+import technopark_db.exceptions.ISelfErrorMessageGenerating
 import technopark_db.models.api.ErrorModel
 
 
@@ -13,12 +14,16 @@ import technopark_db.models.api.ErrorModel
 class ExceptionController {
 
     @ExceptionHandler(Exception::class)
-    fun handleAllError(ex: Exception): ResponseEntity<ErrorModel> {
+    fun handleAllError(ex: Exception): ResponseEntity<Any> {
         val responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.javaClass, ResponseStatus::class.java)
         if (responseStatus != null) {
-            var reason: String? = ex.message ?: responseStatus.reason;
+            var reasonObject = if (ex is ISelfErrorMessageGenerating) {
+                ex.generate()
+            } else {
+                ErrorModel(ex.message ?: responseStatus.reason);
+            }
 
-            return ResponseEntity.status(responseStatus.code).body(ErrorModel(reason))
+            return ResponseEntity.status(responseStatus.code).body(reasonObject)
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorModel(ex.message))
     }
