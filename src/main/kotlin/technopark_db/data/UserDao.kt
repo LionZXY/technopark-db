@@ -4,7 +4,9 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Service
+import technopark_db.exceptions.UserNotFound
 import technopark_db.models.api.User
 import technopark_db.models.local.UserLocal
 import java.sql.ResultSet
@@ -31,13 +33,28 @@ open class UserDao(private val template: JdbcTemplate,
 
     fun create(user: User): UserLocal {
         template.update({
-            val pst = it.prepareStatement("INSERT INTO \"user\" (nickname, about, email, fullname) VALUES (?,?,?,?);")
-            pst.setString(1, user.nickname)
-            pst.setString(2, user.about)
-            pst.setString(3, user.fullname)
-            pst.setString(4, user.fullname)
-            return@update pst
+            it.prepareStatement("INSERT INTO \"user\" (nickname, about, email, fullname) VALUES (?,?,?,?);").apply {
+                setString(1, user.nickname)
+                setString(2, user.about)
+                setString(3, user.email)
+                setString(4, user.fullname)
+            }
         })
+        return UserLocal(user.nickname!!, user.email, user.fullname, user.about)
+    }
+
+    fun update(user: User): UserLocal {
+        val rows = template.update({
+            it.prepareStatement("UPDATE \"user\" SET (about, email, fullname) = (?, ?, ?) WHERE nickname = ?;").apply {
+                setString(1, user.about)
+                setString(2, user.email)
+                setString(3, user.fullname)
+                setString(4, user.nickname)
+            }
+        })
+        if(rows == 0){
+            throw UserNotFound()
+        }
         return UserLocal(user.nickname!!, user.email, user.fullname, user.about)
     }
 
