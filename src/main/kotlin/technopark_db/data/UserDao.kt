@@ -3,8 +3,6 @@ package technopark_db.data
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Service
 import technopark_db.exceptions.UserNotFound
 import technopark_db.models.api.User
@@ -13,8 +11,7 @@ import java.sql.ResultSet
 import java.util.*
 
 @Service
-open class UserDao(private val template: JdbcTemplate,
-                   private val namedTemplate: NamedParameterJdbcTemplate) {
+open class UserDao(private val template: JdbcTemplate) {
     companion object {
         private const val COLUMN_ABOUT = "about"
         private const val COLUMN_EMAIL = "email"
@@ -22,12 +19,10 @@ open class UserDao(private val template: JdbcTemplate,
         private const val COLUMN_NICKNAME = "nickname" // Primary key
 
         val USERMAPPER = RowMapper<UserLocal> { rs: ResultSet, _ ->
-            val v = rs.metaData.columnCount
-            val tmp = UserLocal(rs.getString(COLUMN_NICKNAME),
+            UserLocal(rs.getString(COLUMN_NICKNAME),
                     rs.getString(COLUMN_EMAIL),
                     rs.getString(COLUMN_FULLNAME),
                     rs.getString(COLUMN_ABOUT))
-            return@RowMapper tmp
         }
     }
 
@@ -52,7 +47,7 @@ open class UserDao(private val template: JdbcTemplate,
                 setString(4, user.nickname)
             }
         })
-        if(rows == 0){
+        if (rows == 0) {
             throw UserNotFound()
         }
         return UserLocal(user.nickname!!, user.email, user.fullname, user.about)

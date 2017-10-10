@@ -10,4 +10,6 @@ data class Forum(
         @JsonProperty("user")
         var user: String,
         var postCount: Int = 0,
-        var threads: Int = 0 /* Веток */);
+        var threads: Int = 0 /* Веток */) {
+    constructor() : this("", "", "")
+}

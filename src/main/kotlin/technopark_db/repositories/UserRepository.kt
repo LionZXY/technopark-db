@@ -6,18 +6,19 @@ import technopark_db.data.UserDao
 import technopark_db.exceptions.UserAlreadyCreated
 import technopark_db.exceptions.UserAlreadyCreatedDefault
 import technopark_db.exceptions.UserNotFound
-import technopark_db.models.api.ErrorModel
 import technopark_db.models.api.User
 import technopark_db.models.local.UserLocal
+import technopark_db.models.mappers.UserMapper
 
 @Service
-class UserRepository(private val userDao: UserDao) {
+class UserRepository(private val userDao: UserDao,
+                     private val mapper: UserMapper) {
     fun create(user: User): UserLocal {
         try {
             return userDao.create(user)
         } catch (e: DuplicateKeyException) {
             val existUsers = userDao.getUser(user.nickname!!, user.email)
-            throw UserAlreadyCreated(existUsers)
+            throw UserAlreadyCreated(existUsers.map { mapper.map(it) })
         }
     }
 
@@ -30,7 +31,7 @@ class UserRepository(private val userDao: UserDao) {
             return userDao.update(user)
         } catch (e: DuplicateKeyException) {
             throw UserAlreadyCreatedDefault()
-        } catch (e: UserNotFound){
+        } catch (e: UserNotFound) {
             throw e
         }
     }
