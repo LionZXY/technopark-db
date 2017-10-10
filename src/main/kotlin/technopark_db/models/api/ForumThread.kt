@@ -1,6 +1,5 @@
 package technopark_db.models.api
 
-import com.fasterxml.jackson.annotation.JsonClassDescription
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class ForumThread(
