@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
+import technopark_db.exceptions.ForumNotFound
 import technopark_db.models.api.Forum
 import technopark_db.models.local.ForumLocal
 import java.sql.ResultSet
@@ -35,12 +36,12 @@ class ForumDao(private val template: JdbcTemplate) {
                 setString(3, forum.user)
             }
         })
-        return ForumLocal(forum.slug, forum.title, forum.user)
+        return ForumLocal(forum.slug!!, forum.title, forum.user)
     }
 
     fun get(slug: String): ForumLocal {
         return template.query("SELECT * FROM forum WHERE slug = ?",
                 PreparedStatementSetter { it.setString(1, slug) },
-                FORUMMAPPER).first()
+                FORUMMAPPER).firstOrNull() ?: throw ForumNotFound()
     }
 }

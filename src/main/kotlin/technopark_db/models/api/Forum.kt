@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Forum(
         @JsonProperty("slug")
-        val slug: String,
+        var slug: String?,
         @JsonProperty("title")
         var title: String,
         @JsonProperty("user")

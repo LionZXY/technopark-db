@@ -17,9 +17,13 @@ class ForumRepository(private val dao: ForumDao,
         try {
             return dao.create(forum)
         } catch (e: DuplicateKeyException) {
-            throw ForumAlreadyCreated(mapper.map(dao.get(forum.slug)))
+            throw ForumAlreadyCreated(mapper.map(dao.get(forum.slug!!)))
         } catch (e: DataIntegrityViolationException) {
             throw UserNotFound()
         }
+    }
+
+    fun get(slug: String): ForumLocal {
+        return dao.get(slug)
     }
 }
