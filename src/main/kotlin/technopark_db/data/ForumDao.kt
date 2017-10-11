@@ -4,8 +4,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
-import technopark_db.exceptions.ForumNotFound
 import technopark_db.models.api.Forum
+import technopark_db.models.exceptions.ForumNotFound
 import technopark_db.models.local.ForumLocal
 import java.sql.ResultSet
 

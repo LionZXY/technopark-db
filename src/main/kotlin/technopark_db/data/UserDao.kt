@@ -4,8 +4,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
-import technopark_db.exceptions.UserNotFound
 import technopark_db.models.api.User
+import technopark_db.models.exceptions.UserNotFound
 import technopark_db.models.local.UserLocal
 import java.sql.ResultSet
 import java.util.*

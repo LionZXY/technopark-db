@@ -1,4 +1,4 @@
-package technopark_db.exceptions
+package technopark_db.models.exceptions
 
 
 interface ISelfErrorMessageGenerating {

@@ -11,7 +11,7 @@ class ForumController(private val repo: ForumRepository,
 
     @PostMapping("/forum/create")
     fun create(@RequestBody(required = false) forum: Forum): Forum {
-        return mapper.map(repo.createUser(forum))
+        return mapper.map(repo.createForum(forum))
     }
 
     @GetMapping("/forum/{slug}/details")

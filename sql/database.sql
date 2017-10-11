@@ -36,19 +36,20 @@ FOREIGN KEY (nickname) REFERENCES "user";
 
 CREATE TABLE thread
 (
-  authornick    TEXT   NOT NULL
+  authornick  TEXT                    NOT NULL
     CONSTRAINT thread_user_nickname_fk
     REFERENCES "user",
-  id            SERIAL NOT NULL
+  id          SERIAL                  NOT NULL
     CONSTRAINT thread_pkey
     PRIMARY KEY,
-  created       TIMESTAMP,
-  forumnickname TEXT   NOT NULL
+  created     TIMESTAMP DEFAULT now() NOT NULL,
+  forumslug   TEXT                    NOT NULL
     CONSTRAINT thread_forum_slug_fk
     REFERENCES forum,
-  messagetext   TEXT   NOT NULL,
-  slug          CHAR(50),
-  title         TEXT
+  messagetext TEXT                    NOT NULL,
+  slug        CHAR(50),
+  title       TEXT,
+  votes       INTEGER DEFAULT 0       NOT NULL
 );
 
 CREATE UNIQUE INDEX thread_id_uindex
@@ -56,6 +57,24 @@ CREATE UNIQUE INDEX thread_id_uindex
 
 CREATE UNIQUE INDEX thread_slug_uindex
   ON thread (slug);
+
+CREATE FUNCTION increment_thread_count()
+  RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  UPDATE forum
+  SET threads = threads + 1
+  WHERE slug = NEW.forumslug;
+  RETURN NEW;
+END
+$$;
+
+CREATE TRIGGER trigger_incr_thread
+AFTER INSERT
+  ON thread
+FOR EACH ROW
+EXECUTE PROCEDURE increment_thread_count();
 
 CREATE TABLE messages
 (
@@ -90,3 +109,4 @@ CREATE TABLE votes
     CONSTRAINT votes_thread_id_fk
     REFERENCES thread
 );
+
