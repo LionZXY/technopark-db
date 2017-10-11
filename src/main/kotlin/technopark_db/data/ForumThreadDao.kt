@@ -51,7 +51,7 @@ class ForumThreadDao(private val template: JdbcTemplate) {
                 setDate(6, forumThread.created)
             }
         }, gkh)
-        return ForumThreadLocal(gkh.key as Int, forumThread.author, forumThread.created, forumThread.message, forumThread.slug!!, forumThread.title, forumThread.forum!!)
+        return ForumThreadLocal(gkh.key as Int, forumThread.author, forumThread.created, forumThread.message, forumThread.slug, forumThread.title, forumThread.forum!!)
     }
 
     fun get(slug: String): ForumThreadLocal {
