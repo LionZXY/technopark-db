@@ -1,5 +1,7 @@
 package technopark_db.controllers
 
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import technopark_db.models.api.User
 import technopark_db.models.local.UserLocal
@@ -12,9 +14,9 @@ class UserController(
         private val userMapper: Mapper<UserLocal, User>) {
 
     @PostMapping("/user/{nickname}/create")
-    fun сreate(@PathVariable nickname: String, @RequestBody(required = false) user: User): UserLocal {
+    fun сreate(@PathVariable nickname: String, @RequestBody(required = false) user: User): ResponseEntity<UserLocal> {
         user.nickname = nickname
-        return userRepository.create(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userRepository.create(user));
     }
 
     @GetMapping("/user/{nickname}/profile")

@@ -9,6 +9,7 @@ import technopark_db.models.exceptions.ThreadAlreadyCreated
 import technopark_db.models.exceptions.UserNotFound
 import technopark_db.models.local.ForumThreadLocal
 import technopark_db.models.mappers.ForumThreadMapper
+import technopark_db.utils.Constants
 
 @Service
 class ForumThreadRepository(private val forumThreadDao: ForumThreadDao,
@@ -17,13 +18,22 @@ class ForumThreadRepository(private val forumThreadDao: ForumThreadDao,
         try {
             return forumThreadDao.create(forum)
         } catch (e: DuplicateKeyException) {
-            throw ThreadAlreadyCreated(mapper.map(get(forum.slug!!)))
-        } catch (e: DataIntegrityViolationException){
+            throw ThreadAlreadyCreated(mapper.map(getThreadBySlug(forum.slug!!)))
+        } catch (e: DataIntegrityViolationException) {
             throw UserNotFound()
         }
     }
 
-    fun get(slug: String): ForumThreadLocal {
-        return forumThreadDao.get(slug)
+    private fun getThreadBySlug(slug: String): ForumThreadLocal {
+        return forumThreadDao.getBySlug(slug)
+    }
+
+    fun get(slugOrId: String): ForumThreadLocal {
+        return if (Constants.slugPatter.matcher(slugOrId).matches()) {
+            forumThreadDao.getBySlug(slugOrId)
+        } else {
+            val id = Integer.valueOf(slugOrId)
+            forumThreadDao.getById(id)
+        }
     }
 }

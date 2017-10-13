@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service
 import technopark_db.models.api.Forum
 import technopark_db.models.exceptions.ForumNotFound
 import technopark_db.models.local.ForumLocal
+import technopark_db.models.local.ForumThreadLocal
+import technopark_db.models.local.UserLocal
 import java.sql.ResultSet
 
 @Service
@@ -43,5 +45,17 @@ class ForumDao(private val template: JdbcTemplate) {
         return template.query("SELECT * FROM forum WHERE slug = ?",
                 PreparedStatementSetter { it.setString(1, slug) },
                 FORUMMAPPER).firstOrNull() ?: throw ForumNotFound()
+    }
+
+    fun getThreadsByForum(slug: String): List<ForumThreadLocal> {
+        return template.query("SELECT * FROM thread WHERE forumslug = ?",
+                PreparedStatementSetter { it.setString(1, slug) },
+                ForumThreadDao.THREADMAPPER)
+    }
+
+    fun getThreadsByUser(slug: String): List<UserLocal> {
+        return template.query("SELECT * FROM user WHERE forumslug = ?",
+                PreparedStatementSetter { it.setString(1, slug) },
+                UserDao.USERMAPPER)
     }
 }

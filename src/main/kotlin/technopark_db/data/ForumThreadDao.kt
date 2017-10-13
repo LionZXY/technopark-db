@@ -54,10 +54,18 @@ class ForumThreadDao(private val template: JdbcTemplate) {
         return ForumThreadLocal(gkh.key as Int, forumThread.author, forumThread.created, forumThread.message, forumThread.slug, forumThread.title, forumThread.forum!!)
     }
 
-    fun get(slug: String): ForumThreadLocal {
+    fun getBySlug(slug: String): ForumThreadLocal {
         return template.query("SELECT * FROM thread WHERE slug = ?",
                 PreparedStatementSetter {
                     it.setString(1, slug)
+                },
+                THREADMAPPER).firstOrNull() ?: throw ForumThreadNotFound()
+    }
+
+    fun getById(id: Int): ForumThreadLocal {
+        return template.query("SELECT * FROM thread WHERE id = ?",
+                PreparedStatementSetter {
+                    it.setInt(1, id)
                 },
                 THREADMAPPER).firstOrNull() ?: throw ForumThreadNotFound()
     }

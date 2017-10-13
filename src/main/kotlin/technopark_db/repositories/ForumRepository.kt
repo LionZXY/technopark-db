@@ -8,6 +8,7 @@ import technopark_db.models.api.Forum
 import technopark_db.models.exceptions.ForumAlreadyCreated
 import technopark_db.models.exceptions.UserNotFound
 import technopark_db.models.local.ForumLocal
+import technopark_db.models.local.ForumThreadLocal
 import technopark_db.models.mappers.ForumMapper
 
 @Service
@@ -25,5 +26,9 @@ class ForumRepository(private val dao: ForumDao,
 
     fun get(slug: String): ForumLocal {
         return dao.get(slug)
+    }
+
+    fun getThreadsByForum(slug: String): List<ForumThreadLocal>{
+        return dao.getThreadsByForum(slug)
     }
 }

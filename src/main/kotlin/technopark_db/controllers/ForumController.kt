@@ -1,21 +1,31 @@
 package technopark_db.controllers
 
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import technopark_db.models.api.Forum
+import technopark_db.models.api.ForumThread
 import technopark_db.models.mappers.ForumMapper
+import technopark_db.models.mappers.ForumThreadMapper
 import technopark_db.repositories.ForumRepository
 
 @RestController
 class ForumController(private val repo: ForumRepository,
-                      private val mapper: ForumMapper) {
+                      private val mapper: ForumMapper,
+                      private val mapperThread: ForumThreadMapper) {
 
     @PostMapping("/forum/create")
-    fun create(@RequestBody(required = false) forum: Forum): Forum {
-        return mapper.map(repo.createForum(forum))
+    fun create(@RequestBody(required = false) forum: Forum): ResponseEntity<Forum> {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.map(repo.createForum(forum)))
     }
 
     @GetMapping("/forum/{slug}/details")
     fun get(@PathVariable slug: String): Forum {
         return mapper.map(repo.get(slug))
+    }
+
+    @GetMapping("/forum/{slug}/threads")
+    fun getThreads(@PathVariable slug: String): List<ForumThread> {
+        return repo.getThreadsByForum(slug).map { mapperThread.map(it) }
     }
 }
