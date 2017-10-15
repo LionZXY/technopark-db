@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
 import technopark_db.models.api.User
-import technopark_db.models.exceptions.UserNotFound
 import technopark_db.models.local.UserLocal
 import java.sql.ResultSet
 import java.util.*
@@ -28,38 +27,30 @@ open class UserDao(private val template: JdbcTemplate) {
 
     fun create(user: User): UserLocal {
         template.update({
-            it.prepareStatement("INSERT INTO \"user\" (nickname, about, email, fullname) VALUES (?,?,?,?);").apply {
+            it.prepareStatement("INSERT INTO \"user\" (nickname, about, email, fullname) VALUES (?::CITEXT,?,?::CITEXT,?);").apply {
                 setString(1, user.nickname)
                 setString(2, user.about)
                 setString(3, user.email)
                 setString(4, user.fullname)
             }
         })
-        return UserLocal(user.nickname!!, user.email, user.fullname, user.about)
+        return UserLocal(user.nickname!!, user.email!!, user.fullname!!, user.about!!)
     }
 
     fun update(user: User): UserLocal {
-        val rows = template.update({
-            it.prepareStatement("UPDATE \"user\" SET (about, email, fullname) = (?, ?, ?) WHERE nickname = ?;").apply {
-                setString(1, user.about)
-                setString(2, user.email)
-                setString(3, user.fullname)
-                setString(4, user.nickname)
-            }
-        })
-        if (rows == 0) {
-            throw UserNotFound()
-        }
-        return UserLocal(user.nickname!!, user.email, user.fullname, user.about)
+        return template.queryForObject("UPDATE \"user\" SET (about, email, fullname) = (coalesce(?, about), coalesce(?::CITEXT, email), coalesce(?, fullname)) WHERE nickname = ?::CITEXT RETURNING *;",
+                USERMAPPER, user.about, user.email, user.fullname, user.nickname)
+
+
     }
 
     fun getUser(nickname: String, email: String? = null): List<UserLocal> {
         return if (email == null) {
-            template.query("SELECT * FROM \"user\" WHERE nickname = ?",
+            template.query("SELECT * FROM \"user\" WHERE nickname = ?::CITEXT",
                     PreparedStatementSetter { it.setString(1, nickname) },
                     USERMAPPER)
         } else {
-            template.query("SELECT * FROM \"user\" WHERE nickname = ? OR email = ?",
+            template.query("SELECT * FROM \"user\" WHERE nickname = ?::CITEXT OR email = ?::CITEXT",
                     PreparedStatementSetter {
                         it.setString(1, nickname)
                         it.setString(2, email)

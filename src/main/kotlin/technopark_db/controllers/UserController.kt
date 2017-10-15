@@ -29,8 +29,9 @@ class UserController(
     }
 
     @PostMapping("/user/{nickname}/profile")
-    fun update(@PathVariable nickname: String, @RequestBody(required = false) user: User): UserLocal {
-        user.nickname = nickname
-        return userRepository.update(user);
+    fun update(@PathVariable nickname: String, @RequestBody(required = false) user: User?): UserLocal {
+        val nonNullUser = user ?: User()
+        nonNullUser.nickname = nickname
+        return userRepository.update(nonNullUser);
     }
 }

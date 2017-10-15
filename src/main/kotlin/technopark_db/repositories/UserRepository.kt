@@ -1,6 +1,7 @@
 package technopark_db.repositories
 
 import org.springframework.dao.DuplicateKeyException
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
 import technopark_db.data.UserDao
 import technopark_db.models.api.User
@@ -31,8 +32,8 @@ class UserRepository(private val userDao: UserDao,
             return userDao.update(user)
         } catch (e: DuplicateKeyException) {
             throw UserAlreadyCreatedDefault()
-        } catch (e: UserNotFound) {
-            throw e
+        } catch (e: EmptyResultDataAccessException) {
+            throw UserNotFound()
         }
     }
 }
