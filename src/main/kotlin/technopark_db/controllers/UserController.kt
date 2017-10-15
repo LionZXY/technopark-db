@@ -16,7 +16,11 @@ class UserController(
     @PostMapping("/user/{nickname}/create")
     fun сreate(@PathVariable nickname: String, @RequestBody(required = false) user: User): ResponseEntity<UserLocal> {
         user.nickname = nickname
-        return ResponseEntity.status(HttpStatus.CREATED).body(userRepository.create(user));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        userRepository.create(user)
+                );
     }
 
     @GetMapping("/user/{nickname}/profile")

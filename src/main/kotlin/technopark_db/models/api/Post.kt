@@ -1,21 +1,24 @@
 package technopark_db.models.api
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.sql.Date
 
 data class Post(
         @JsonProperty("id")
-        val id: Long,
+        var id: Int = 0,
         @JsonProperty("author")
-        val author: String,
+        var author: String?,
         @JsonProperty("forum")
-        val forumSlug: String,
+        var forumSlug: String?,
         @JsonProperty("message")
-        val message: String,
+        var message: String,
         @JsonProperty("thread")
-        val threadId: Int,
+        var threadId: Int,
         @JsonProperty("created")
-        var created: String = "",
+        var created: Date? = null,
         @JsonProperty("isEdited")
         var isEdited: Boolean = false,
         @JsonProperty("parent")
-        var parent: Long = 0L)
+        var parent: Long = 0L) {
+    constructor() : this(0, "", "", "", 0)
+}

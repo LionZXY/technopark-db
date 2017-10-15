@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class PostFull(
         @JsonProperty("author")
-        var author: User,
+        var author: User?,
         @JsonProperty("forum")
-        var forum: Forum,
+        var forum: Forum?,
         @JsonProperty("post")
-        var post: Post,
+        var post: Post?,
         @JsonProperty("thread")
-        var thread: ForumThread)
+        var thread: ForumThread?) {
+    constructor() : this(null, null, null, null)
+}

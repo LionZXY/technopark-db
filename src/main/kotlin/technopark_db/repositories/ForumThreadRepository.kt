@@ -10,6 +10,7 @@ import technopark_db.models.exceptions.UserNotFound
 import technopark_db.models.local.ForumThreadLocal
 import technopark_db.models.mappers.ForumThreadMapper
 import technopark_db.utils.Constants
+import technopark_db.utils.isSlug
 
 @Service
 class ForumThreadRepository(private val forumThreadDao: ForumThreadDao,
@@ -29,7 +30,7 @@ class ForumThreadRepository(private val forumThreadDao: ForumThreadDao,
     }
 
     fun get(slugOrId: String): ForumThreadLocal {
-        return if (Constants.slugPatter.matcher(slugOrId).matches()) {
+        return if (slugOrId.isSlug()) {
             forumThreadDao.getBySlug(slugOrId)
         } else {
             val id = Integer.valueOf(slugOrId)

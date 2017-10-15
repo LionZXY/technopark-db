@@ -6,4 +6,6 @@ data class Vote(
         @JsonProperty("nickname")
         val nickname: String,
         @JsonProperty("voice")
-        val voice: Int)
+        val voice: Int) {
+    constructor() : this("", 0)
+}
