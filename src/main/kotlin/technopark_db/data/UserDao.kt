@@ -39,7 +39,11 @@ open class UserDao(private val template: JdbcTemplate) {
 
     fun update(user: User): UserLocal {
         return template.queryForObject("UPDATE \"user\" SET (about, email, fullname) = (coalesce(?, about), coalesce(?::CITEXT, email), coalesce(?, fullname)) WHERE nickname = ?::CITEXT RETURNING *;",
-                USERMAPPER, user.about, user.email, user.fullname, user.nickname)
+                USERMAPPER,
+                user.about,
+                user.email,
+                user.fullname,
+                user.nickname)
 
 
     }

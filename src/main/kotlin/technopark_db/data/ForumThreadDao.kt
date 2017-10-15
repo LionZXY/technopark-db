@@ -3,12 +3,10 @@ package technopark_db.data
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Controller
 import technopark_db.models.api.ForumThread
 import technopark_db.models.exceptions.ForumThreadNotFound
 import technopark_db.models.local.ForumThreadLocal
-import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 /**
@@ -39,19 +37,14 @@ class ForumThreadDao(private val template: JdbcTemplate) {
     }
 
     fun create(forumThread: ForumThread): ForumThreadLocal {
-        val gkh = GeneratedKeyHolder()
-        template.update({
-            it.prepareStatement("INSERT INTO thread (authornick, forumslug, messagetext, slug, title, created) VALUES (?,?,?,?,?,?) RETURNING id",
-                    PreparedStatement.RETURN_GENERATED_KEYS).apply {
-                setString(1, forumThread.author)
-                setString(2, forumThread.forum)
-                setString(3, forumThread.message)
-                setString(4, forumThread.slug)
-                setString(5, forumThread.title)
-                setDate(6, forumThread.created)
-            }
-        }, gkh)
-        return ForumThreadLocal(gkh.key as Int, forumThread.author, forumThread.created, forumThread.message, forumThread.slug, forumThread.title, forumThread.forum!!)
+        return template.queryForObject("INSERT INTO thread (authornick, forumslug, messagetext, slug, title, created) VALUES (?,?,?,?,?,?) RETURNING *;",
+                THREADMAPPER,
+                forumThread.author,
+                forumThread.forum,
+                forumThread.message,
+                forumThread.slug,
+                forumThread.title,
+                forumThread.created)
     }
 
     fun getBySlug(slug: String): ForumThreadLocal {

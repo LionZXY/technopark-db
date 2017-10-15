@@ -1,6 +1,6 @@
 CREATE TABLE forum
 (
-  slug     TEXT              NOT NULL
+  slug     CITEXT            NOT NULL
     CONSTRAINT forum_slug_pk
     PRIMARY KEY,
   title    TEXT,
@@ -18,7 +18,7 @@ CREATE TABLE "user"
   email    CITEXT NOT NULL
     CONSTRAINT user_email_pk
     UNIQUE,
-  fullname TEXT   NOT NULL,
+  fullname TEXT,
   nickname CITEXT NOT NULL
     CONSTRAINT user_nickname_pk_prim
     PRIMARY KEY
@@ -45,7 +45,7 @@ CREATE TABLE thread
     CONSTRAINT thread_pkey
     PRIMARY KEY,
   created     TIMESTAMP DEFAULT now() NOT NULL,
-  forumslug   TEXT                    NOT NULL
+  forumslug   CITEXT                  NOT NULL
     CONSTRAINT thread_forum_slug_fk
     REFERENCES forum,
   messagetext TEXT                    NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE messages
     CONSTRAINT messages_user_nickname_fk
     REFERENCES "user",
   created    TIMESTAMP,
-  forumslug  TEXT
+  forumslug  CITEXT
     CONSTRAINT messages_forum_slug_fk
     REFERENCES forum,
   id         SERIAL                NOT NULL

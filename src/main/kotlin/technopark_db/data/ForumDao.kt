@@ -32,7 +32,7 @@ class ForumDao(private val template: JdbcTemplate) {
 
     fun create(forum: Forum): ForumLocal {
         template.update({
-            it.prepareStatement("INSERT INTO \"forum\" (slug, title, nickname) VALUES (?, ?, ?)").apply {
+            it.prepareStatement("INSERT INTO \"forum\" (slug, title, nickname) VALUES (?::CITEXT, ?, ?)").apply {
                 setString(1, forum.slug)
                 setString(2, forum.title)
                 setString(3, forum.user)
@@ -42,13 +42,13 @@ class ForumDao(private val template: JdbcTemplate) {
     }
 
     fun get(slug: String): ForumLocal {
-        return template.query("SELECT * FROM forum WHERE slug = ?",
+        return template.query("SELECT * FROM forum WHERE slug = ?::CITEXT",
                 PreparedStatementSetter { it.setString(1, slug) },
                 FORUMMAPPER).firstOrNull() ?: throw ForumNotFound()
     }
 
     fun getThreadsByForum(slug: String): List<ForumThreadLocal> {
-        return template.query("SELECT * FROM thread WHERE forumslug = ?",
+        return template.query("SELECT * FROM thread WHERE forumslug = ?::CITEXT",
                 PreparedStatementSetter { it.setString(1, slug) },
                 ForumThreadDao.THREADMAPPER)
     }
