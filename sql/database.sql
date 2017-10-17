@@ -1,16 +1,21 @@
 CREATE TABLE forum
 (
-  slug     CITEXT            NOT NULL
-    CONSTRAINT forum_slug_pk
+  slug         CITEXT            NOT NULL,
+  title        TEXT,
+  userid       INTEGER           NOT NULL,
+  posts        INTEGER DEFAULT 0 NOT NULL,
+  threads      INTEGER DEFAULT 0 NOT NULL,
+  id           SERIAL            NOT NULL
+    CONSTRAINT forum_id_pk
     PRIMARY KEY,
-  title    TEXT,
-  nickname CITEXT            NOT NULL,
-  posts    INTEGER DEFAULT 0 NOT NULL,
-  threads  INTEGER DEFAULT 0 NOT NULL
+  tmp_nickname TEXT
 );
 
 CREATE UNIQUE INDEX forums_slug_uindex
   ON forum (slug);
+
+CREATE UNIQUE INDEX forum_id_uindex
+  ON forum (id);
 
 CREATE TABLE "user"
 (
@@ -20,10 +25,11 @@ CREATE TABLE "user"
     UNIQUE,
   fullname TEXT,
   nickname CITEXT NOT NULL
-    CONSTRAINT user_nickname_pk_prim
-    PRIMARY KEY
     CONSTRAINT user_nickname_pk
-    UNIQUE
+    UNIQUE,
+  id       SERIAL NOT NULL
+    CONSTRAINT user_id_pk
+    PRIMARY KEY
 );
 
 CREATE UNIQUE INDEX user_email_uindex
@@ -32,21 +38,24 @@ CREATE UNIQUE INDEX user_email_uindex
 CREATE UNIQUE INDEX users_nickname_uindex
   ON "user" (nickname);
 
+CREATE UNIQUE INDEX user_id_uindex
+  ON "user" (id);
+
 ALTER TABLE forum
-  ADD CONSTRAINT forum_user_nickname_fk
-FOREIGN KEY (nickname) REFERENCES "user";
+  ADD CONSTRAINT forum_user_id_fk
+FOREIGN KEY (userid) REFERENCES "user";
 
 CREATE TABLE thread
 (
-  authornick  CITEXT                  NOT NULL
-    CONSTRAINT thread_user_nickname_fk
+  userid      INTEGER                 NOT NULL
+    CONSTRAINT thread_user_id_fk
     REFERENCES "user",
   id          SERIAL                  NOT NULL
     CONSTRAINT thread_pkey
     PRIMARY KEY,
   created     TIMESTAMP DEFAULT now() NOT NULL,
-  forumslug   CITEXT                  NOT NULL
-    CONSTRAINT thread_forum_slug_fk
+  forumid     INTEGER                 NOT NULL
+    CONSTRAINT thread_forum_id_fk
     REFERENCES forum,
   messagetext TEXT                    NOT NULL,
   slug        TEXT,
@@ -80,20 +89,20 @@ EXECUTE PROCEDURE increment_thread_count();
 
 CREATE TABLE messages
 (
-  authornick CITEXT                NOT NULL
-    CONSTRAINT messages_user_nickname_fk
+  userid   INTEGER               NOT NULL
+    CONSTRAINT messages_user_id_fk
     REFERENCES "user",
-  created    TIMESTAMP,
-  forumslug  CITEXT
-    CONSTRAINT messages_forum_slug_fk
+  created  TIMESTAMP,
+  forumid  INTEGER
+    CONSTRAINT messages_forum_id_fk
     REFERENCES forum,
-  id         SERIAL                NOT NULL
+  id       SERIAL                NOT NULL
     CONSTRAINT messages_pkey
     PRIMARY KEY,
-  isedited   BOOLEAN DEFAULT FALSE NOT NULL,
-  message    TEXT,
-  parentid   INTEGER DEFAULT 0,
-  threadid   INTEGER               NOT NULL
+  isedited BOOLEAN DEFAULT FALSE NOT NULL,
+  message  TEXT,
+  parentid INTEGER DEFAULT 0,
+  threadid INTEGER               NOT NULL
     CONSTRAINT messages_thread_id_fk
     REFERENCES thread
 );
@@ -103,8 +112,8 @@ CREATE UNIQUE INDEX messages_id_uindex
 
 CREATE TABLE votes
 (
-  nickname CITEXT  NOT NULL
-    CONSTRAINT votes_user_nickname_fk
+  userid   INTEGER NOT NULL
+    CONSTRAINT votes_user_id_fk
     REFERENCES "user",
   voice    INTEGER NOT NULL,
   threadid INTEGER NOT NULL
@@ -267,4 +276,3 @@ CREATE OPERATOR ~~ ( PROCEDURE = "public.texticlike", LEFTARG = CITEXT, RIGHTARG
 CREATE OPERATOR !~~* ( PROCEDURE = "public.texticnlike", LEFTARG = CITEXT, RIGHTARG = TEXT );
 
 CREATE OPERATOR ~~* ( PROCEDURE = "public.texticlike", LEFTARG = CITEXT, RIGHTARG = TEXT );
-

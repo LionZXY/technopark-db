@@ -17,7 +17,7 @@ class ForumDao(private val template: JdbcTemplate) {
     companion object {
         private const val COLUMN_SLUG = "slug"
         private const val COLUMN_TITLE = "title"
-        private const val COLUMN_NICKNAME = "nickname"
+        private const val COLUMN_NICKNAME = "tmp_nickname"
         private const val COLUMN_THREADS = "threads"
         private const val COLUMN_POSTS = "posts"
 
@@ -31,18 +31,18 @@ class ForumDao(private val template: JdbcTemplate) {
     }
 
     fun create(forum: Forum): ForumLocal {
-        template.update({
-            it.prepareStatement("INSERT INTO \"forum\" (slug, title, nickname) VALUES (?::CITEXT, ?, ?)").apply {
-                setString(1, forum.slug)
-                setString(2, forum.title)
-                setString(3, forum.user)
-            }
-        })
-        return ForumLocal(forum.slug!!, forum.title, forum.user)
+        return template.queryForObject("INSERT INTO forum (userid, slug, title, tmp_nickname) SELECT ud.id, ?, ?, ud.nickname FROM \"user\" AS ud WHERE nickname = ? :: CITEXT RETURNING *;",
+                FORUMMAPPER,
+                forum.slug,
+                forum.title,
+                forum.user)
     }
 
     fun get(slug: String): ForumLocal {
-        return template.query("SELECT * FROM forum WHERE slug = ?::CITEXT",
+        return template.query("SELECT *\n" +
+                "FROM forum AS forum\n" +
+                "  JOIN \"user\" AS usr ON usr.id = forum.userid\n" +
+                "WHERE forum.slug = ? :: CITEXT;",
                 PreparedStatementSetter { it.setString(1, slug) },
                 FORUMMAPPER).firstOrNull() ?: throw ForumNotFound()
     }

@@ -37,7 +37,7 @@ class ForumThreadDao(private val template: JdbcTemplate) {
     }
 
     fun create(forumThread: ForumThread): ForumThreadLocal {
-        return template.queryForObject("INSERT INTO thread (authornick, forumslug, messagetext, slug, title, created) VALUES (?,?,?,?,?,?) RETURNING *;",
+        return template.queryForObject("INSERT INTO thread (userid, forumslug, messagetext, slug, title, created) VALUES (?,?,?,?,?,?) RETURNING *;",
                 THREADMAPPER,
                 forumThread.author,
                 forumThread.forum,

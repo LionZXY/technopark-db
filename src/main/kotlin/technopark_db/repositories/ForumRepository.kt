@@ -2,6 +2,7 @@ package technopark_db.repositories
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
 import technopark_db.data.ForumDao
 import technopark_db.models.api.Forum
@@ -20,6 +21,8 @@ class ForumRepository(private val dao: ForumDao,
         } catch (e: DuplicateKeyException) {
             throw ForumAlreadyCreated(mapper.map(dao.get(forum.slug!!)))
         } catch (e: DataIntegrityViolationException) {
+            throw UserNotFound()
+        } catch (e: EmptyResultDataAccessException){
             throw UserNotFound()
         }
     }

@@ -41,7 +41,7 @@ class MessageDao(private val template: JdbcTemplate) {
         val currentDate = Date(System.currentTimeMillis())
         template.dataSource.connection.let {
             it.autoCommit = false
-            val ps = it.prepareStatement("INSERT INTO messages (authornick, message, parentid, threadid, created) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)
+            val ps = it.prepareStatement("INSERT INTO messages (userid, message, parentid, threadid, created) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)
             posts.forEach({
                 ps.apply {
                     setString(1, it.author)
