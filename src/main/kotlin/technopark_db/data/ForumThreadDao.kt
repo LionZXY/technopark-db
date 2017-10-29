@@ -8,7 +8,7 @@ import technopark_db.models.api.ForumThread
 import technopark_db.models.exceptions.ForumThreadNotFound
 import technopark_db.models.local.ForumThreadLocal
 import java.sql.ResultSet
-import java.util.*
+import java.sql.Timestamp
 
 
 /**
@@ -60,9 +60,10 @@ class ForumThreadDao(private val template: JdbcTemplate) {
                 forumThread.message,
                 forumThread.slug,
                 forumThread.title,
-                forumThread.created,
+                forumThread.created ?: Timestamp(System.currentTimeMillis()),
                 forumThread.author,
                 forumThread.forum)
+
     }
 
     fun getBySlug(slug: String): ForumThreadLocal {
