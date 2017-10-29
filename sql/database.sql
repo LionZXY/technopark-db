@@ -47,20 +47,22 @@ FOREIGN KEY (userid) REFERENCES "user";
 
 CREATE TABLE thread
 (
-  userid      INTEGER                 NOT NULL
+  userid        INTEGER                                NOT NULL
     CONSTRAINT thread_user_id_fk
     REFERENCES "user",
-  id          SERIAL                  NOT NULL
+  id            SERIAL                                 NOT NULL
     CONSTRAINT thread_pkey
     PRIMARY KEY,
-  created     TIMESTAMP DEFAULT now() NOT NULL,
-  forumid     INTEGER                 NOT NULL
+  created       TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+  forumid       INTEGER                                NOT NULL
     CONSTRAINT thread_forum_id_fk
     REFERENCES forum,
-  messagetext TEXT                    NOT NULL,
-  slug        TEXT,
-  title       TEXT,
-  votes       INTEGER DEFAULT 0       NOT NULL
+  messagetext   TEXT                                   NOT NULL,
+  slug          TEXT,
+  title         TEXT,
+  votes         INTEGER DEFAULT 0                      NOT NULL,
+  tmp_forumslug TEXT,
+  tmp_nickname  TEXT
 );
 
 CREATE UNIQUE INDEX thread_id_uindex
@@ -76,7 +78,7 @@ AS $$
 BEGIN
   UPDATE forum
   SET threads = threads + 1
-  WHERE slug = NEW.forumslug;
+  WHERE id = NEW.forumid;
   RETURN NEW;
 END
 $$;
@@ -276,3 +278,4 @@ CREATE OPERATOR ~~ ( PROCEDURE = "public.texticlike", LEFTARG = CITEXT, RIGHTARG
 CREATE OPERATOR !~~* ( PROCEDURE = "public.texticnlike", LEFTARG = CITEXT, RIGHTARG = TEXT );
 
 CREATE OPERATOR ~~* ( PROCEDURE = "public.texticlike", LEFTARG = CITEXT, RIGHTARG = TEXT );
+

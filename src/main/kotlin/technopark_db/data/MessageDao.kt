@@ -37,6 +37,8 @@ class MessageDao(private val template: JdbcTemplate) {
     }
 
     fun create(threadId: Int, posts: List<Post>): List<MessageLocal> {
+        // TODO: Просить квоту на ключи
+
         var returnVal: List<MessageLocal>? = null
         val currentDate = Date(System.currentTimeMillis())
         template.dataSource.connection.let {
