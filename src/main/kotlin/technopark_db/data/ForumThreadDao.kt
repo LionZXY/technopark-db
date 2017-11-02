@@ -19,7 +19,7 @@ class ForumThreadDao(private val template: JdbcTemplate) {
     companion object {
         private const val COLUMN_USER = "tmp_nickname"
         private const val COLUMN_ID = "id"
-        private const val COLUMN_CREATED = "created"
+        const val COLUMN_CREATED = "created"
         private const val COLUMN_FORUM = "tmp_forumslug"
         private const val COLUMN_TEXT = "messagetext"
         private const val COLUMN_SLUG = "slug"
@@ -45,7 +45,7 @@ class ForumThreadDao(private val template: JdbcTemplate) {
                         "    usr.id,\n" +
                         "    usr.nickname,\n" +
                         "    frm.id,\n" +
-                        "    frm.slug,\n" +
+                        "    frm.slug::CITEXT,\n" +
                         "    ?,\n" +
                         "    ?,\n" +
                         "    ?,\n" +
@@ -67,7 +67,7 @@ class ForumThreadDao(private val template: JdbcTemplate) {
     }
 
     fun getBySlug(slug: String): ForumThreadLocal {
-        return template.query("SELECT * FROM thread WHERE slug = ?",
+        return template.query("SELECT * FROM thread WHERE slug = ?::CITEXT",
                 PreparedStatementSetter {
                     it.setString(1, slug)
                 },

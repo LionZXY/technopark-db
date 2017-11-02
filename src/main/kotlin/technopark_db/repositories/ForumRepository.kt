@@ -11,6 +11,7 @@ import technopark_db.models.exceptions.UserNotFound
 import technopark_db.models.local.ForumLocal
 import technopark_db.models.local.ForumThreadLocal
 import technopark_db.models.mappers.ForumMapper
+import java.sql.Timestamp
 
 @Service
 class ForumRepository(private val dao: ForumDao,
@@ -22,7 +23,7 @@ class ForumRepository(private val dao: ForumDao,
             throw ForumAlreadyCreated(mapper.map(dao.get(forum.slug!!)))
         } catch (e: DataIntegrityViolationException) {
             throw UserNotFound()
-        } catch (e: EmptyResultDataAccessException){
+        } catch (e: EmptyResultDataAccessException) {
             throw UserNotFound()
         }
     }
@@ -31,7 +32,12 @@ class ForumRepository(private val dao: ForumDao,
         return dao.get(slug)
     }
 
-    fun getThreadsByForum(slug: String): List<ForumThreadLocal>{
-        return dao.getThreadsByForum(slug)
+    fun getThreadsByForum(slug: String, limit: Long, since: Timestamp?, desc: Boolean): List<ForumThreadLocal> {
+        val threads = dao.getThreadsByForum(slug, limit, since, desc)
+        if (threads.isEmpty()) {
+            get(slug)
+            return threads
+        }
+        return threads
     }
 }

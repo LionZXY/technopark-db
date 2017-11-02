@@ -61,8 +61,8 @@ CREATE TABLE thread
   slug          TEXT,
   title         TEXT,
   votes         INTEGER DEFAULT 0                      NOT NULL,
-  tmp_forumslug TEXT,
-  tmp_nickname  TEXT
+  tmp_forumslug CITEXT,
+  tmp_nickname  CITEXT
 );
 
 CREATE UNIQUE INDEX thread_id_uindex
@@ -70,6 +70,9 @@ CREATE UNIQUE INDEX thread_id_uindex
 
 CREATE UNIQUE INDEX thread_slug_uindex
   ON thread (slug);
+
+CREATE INDEX thread_created_index
+  ON thread (created);
 
 CREATE FUNCTION increment_thread_count()
   RETURNS TRIGGER
@@ -278,4 +281,3 @@ CREATE OPERATOR ~~ ( PROCEDURE = "public.texticlike", LEFTARG = CITEXT, RIGHTARG
 CREATE OPERATOR !~~* ( PROCEDURE = "public.texticnlike", LEFTARG = CITEXT, RIGHTARG = TEXT );
 
 CREATE OPERATOR ~~* ( PROCEDURE = "public.texticlike", LEFTARG = CITEXT, RIGHTARG = TEXT );
-
