@@ -58,7 +58,7 @@ CREATE TABLE thread
     CONSTRAINT thread_forum_id_fk
     REFERENCES forum,
   messagetext   TEXT                                   NOT NULL,
-  slug          TEXT,
+  slug          CITEXT,
   title         TEXT,
   votes         INTEGER DEFAULT 0                      NOT NULL,
   tmp_forumslug CITEXT,
@@ -94,22 +94,21 @@ EXECUTE PROCEDURE increment_thread_count();
 
 CREATE TABLE messages
 (
-  userid   INTEGER               NOT NULL
+  userid         INTEGER               NOT NULL
     CONSTRAINT messages_user_id_fk
     REFERENCES "user",
-  created  TIMESTAMP,
-  forumid  INTEGER
-    CONSTRAINT messages_forum_id_fk
-    REFERENCES forum,
-  id       SERIAL                NOT NULL
+  created        TIMESTAMP WITH TIME ZONE,
+  id             SERIAL                NOT NULL
     CONSTRAINT messages_pkey
     PRIMARY KEY,
-  isedited BOOLEAN DEFAULT FALSE NOT NULL,
-  message  TEXT,
-  parentid INTEGER DEFAULT 0,
-  threadid INTEGER               NOT NULL
+  isedited       BOOLEAN DEFAULT FALSE NOT NULL,
+  message        TEXT,
+  parentid       INTEGER DEFAULT 0,
+  threadid       INTEGER               NOT NULL
     CONSTRAINT messages_thread_id_fk
-    REFERENCES thread
+    REFERENCES thread,
+  tmp_nickname   CITEXT,
+  tmp_threadslug CITEXT
 );
 
 CREATE UNIQUE INDEX messages_id_uindex
@@ -124,6 +123,15 @@ CREATE TABLE votes
   threadid INTEGER NOT NULL
     CONSTRAINT votes_thread_id_fk
     REFERENCES thread
+);
+
+CREATE TABLE rental
+(
+  rental_id   INTEGER NOT NULL
+    CONSTRAINT rental_pkey
+    PRIMARY KEY,
+  customer_id INTEGER,
+  rental_date TIMESTAMP
 );
 
 CREATE FUNCTION regexp_matches(CITEXT, CITEXT)
@@ -238,6 +246,15 @@ SELECT pg_catalog.translate(pg_catalog.translate($1 :: pg_catalog.TEXT, pg_catal
                             pg_catalog.upper($2 :: pg_catalog.TEXT), $3);
 $$;
 
+CREATE FUNCTION f(x INTEGER)
+  RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN x;
+END;
+$$;
+
 CREATE OPERATOR <> ( PROCEDURE = citext_ne, LEFTARG = CITEXT, RIGHTARG = CITEXT );
 
 CREATE OPERATOR = ( PROCEDURE = citext_eq, LEFTARG = CITEXT, RIGHTARG = CITEXT );
@@ -281,3 +298,4 @@ CREATE OPERATOR ~~ ( PROCEDURE = "public.texticlike", LEFTARG = CITEXT, RIGHTARG
 CREATE OPERATOR !~~* ( PROCEDURE = "public.texticnlike", LEFTARG = CITEXT, RIGHTARG = TEXT );
 
 CREATE OPERATOR ~~* ( PROCEDURE = "public.texticlike", LEFTARG = CITEXT, RIGHTARG = TEXT );
+

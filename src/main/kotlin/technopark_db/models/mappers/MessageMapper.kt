@@ -7,11 +7,12 @@ import technopark_db.models.local.MessageLocal
 @Component
 class MessageMapper : Mapper<MessageLocal, Post> {
     override fun map(input: MessageLocal)
-            = Post(input.localId,
+            = Post(
             input.author,
             input.forumSlug,
             input.message,
             input.threadId,
+            input.localId,
             input.created,
             input.isEdited,
             input.parentId)

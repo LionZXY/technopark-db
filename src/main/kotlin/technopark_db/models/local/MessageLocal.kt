@@ -1,10 +1,11 @@
 package technopark_db.models.local
 
 import java.sql.Date
+import java.sql.Timestamp
 
 data class MessageLocal(
         var localId: Int,
-        var created: Date,
+        var created: Timestamp,
         var isEdited: Boolean,
         var message: String,
         var threadId: Int = 0,

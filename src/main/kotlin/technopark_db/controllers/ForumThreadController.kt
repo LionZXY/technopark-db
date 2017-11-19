@@ -29,7 +29,13 @@ class ForumThreadController(private val forumRepository: ForumThreadRepository,
     }
 
     @PostMapping("/thread/{slug_or_id}/create")
-    fun createPosts(@PathVariable slug_or_id: String, posts: List<Post>): ResponseEntity<List<Post>> {
+    fun createPosts(@PathVariable slug_or_id: String, @RequestBody(required = false) posts: List<Post>?): ResponseEntity<List<Post>> {
+        if(posts == null || posts.isEmpty()){
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(emptyList<Post>())
+        }
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(messageRepository
