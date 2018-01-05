@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import technopark_db.models.api.ForumThread
 import technopark_db.models.api.Post
+import technopark_db.models.api.SortType
 import technopark_db.models.api.Vote
 import technopark_db.models.mappers.ForumThreadMapper
 import technopark_db.models.mappers.MessageMapper
@@ -43,6 +44,24 @@ class ForumThreadController(private val forumRepository: ForumThreadRepository,
                             messageMapper.map(it)
                         }
                 )
+    }
+
+    @GetMapping("/thread/{slug_or_id}/posts")
+    fun getPosts(@PathVariable slug_or_id: String,
+                 @RequestParam(required = false, defaultValue = "-1") limit: Int,
+                 @RequestParam(required = false, defaultValue = "-1") since: Int,
+                 @RequestParam(required = false, defaultValue = "false") desc: Boolean,
+                 @RequestParam(required = false) sort: String? = null
+    ): ResponseEntity<List<Post>> {
+        val sortTypeEnum = SortType.valueOf(sort)
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(messageRepository
+                        .getMessages(slug_or_id, limit, since, desc, sortTypeEnum)
+                        .map {
+                            messageMapper.map(it)
+                        })
     }
 
     @PostMapping("/thread/{slug_or_id}/vote")

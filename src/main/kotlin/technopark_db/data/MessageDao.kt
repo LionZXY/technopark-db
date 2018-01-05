@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Controller
 import technopark_db.models.api.Post
+import technopark_db.models.api.SortType
 import technopark_db.models.local.MessageLocal
 import technopark_db.utils.isNumeric
 import java.sql.*
@@ -13,17 +14,17 @@ import java.sql.*
 class MessageDao(private val template: JdbcTemplate) {
 
     companion object {
-        private const val COLUMN_USER = "authornick"
+        private const val COLUMN_USER = "tmp_nickname"
         private const val COLUMN_CREATED = "created"
-        private const val COLUMN_FORUM = "forumslug"
+        private const val COLUMN_FORUM = "tmp_forumslug"
         private const val COLUMN_ID = "id"
-        private const val COLUMN_ISEDIT = "isedit"
+        private const val COLUMN_ISEDIT = "isedited"
         private const val COLUMN_TEXT = "message"
         private const val COLUMN_PARENTID = "parentid"
         private const val COLUMN_THREAD = "threadid"
 
 
-        val MESSAGEDAO = RowMapper<MessageLocal> { rs: ResultSet, _ ->
+        public val MESSAGEDAO = RowMapper<MessageLocal> { rs: ResultSet, _ ->
             MessageLocal(rs.getInt(COLUMN_ID),
                     rs.getTimestamp(COLUMN_CREATED),
                     rs.getBoolean(COLUMN_ISEDIT),
@@ -54,7 +55,7 @@ class MessageDao(private val template: JdbcTemplate) {
         val forumid = rsForum.getInt("id")
 
         val ps = connection.prepareStatement(
-                "INSERT INTO messages (userid, tmp_nickname, id, message, parentid, threadid, tmp_threadslug, created)\n" +
+                "INSERT INTO messages (userid, tmp_nickname, id, message, parentid, threadid, tmp_threadslug, created, tmp_forumslug)\n" +
                         "  SELECT\n" +
                         "    usr.id,\n" +
                         "    usr.nickname,\n" +
@@ -63,7 +64,8 @@ class MessageDao(private val template: JdbcTemplate) {
                         "    ?,\n" +
                         "    ?,\n" +
                         "    ?,\n" +
-                        "    ?::timestamptz\n" +
+                        "    ?::timestamptz,\n" +
+                        "    ?\n" +
                         "  FROM \"user\" AS usr\n" +
                         "  WHERE usr.nickname = ? :: CITEXT;", Statement.NO_GENERATED_KEYS)
         posts.forEach({
@@ -76,7 +78,8 @@ class MessageDao(private val template: JdbcTemplate) {
                 setInt(4, threadId)
                 setString(5, threadSlug)
                 setTimestamp(6, it.created ?: currentDate)
-                setString(7, it.author)
+                setString(7, forumslug)
+                setString(8, it.author)
                 addBatch()
             }
         })
@@ -89,7 +92,7 @@ class MessageDao(private val template: JdbcTemplate) {
             setInt(2, forumid)
         }
         try {
-            ps.executeUpdate()
+            ps.executeBatch()
             ps2.executeUpdate()
             connection.commit()
         } catch (e: Exception) {
@@ -137,5 +140,21 @@ class MessageDao(private val template: JdbcTemplate) {
         val rs = prepareStatementForum.executeQuery()
         rs.next()
         return rs
+    }
+
+    fun getMessages(slugOrId: String, limit: Int, since: Int, desc: Boolean, sortType: SortType): List<MessageLocal> {
+        var threadId = if (slugOrId.isNumeric()) {
+            slugOrId.toInt()
+        } else {
+            val rs = template.queryForRowSet("SELECT id FROM thread WHERE slug = ?::CITEXT", slugOrId)
+            rs.next()
+            rs.getInt(1)
+        }
+
+        return sortType.sortSqlGeneration.getSql(template,
+                threadId,
+                limit,
+                since,
+                desc)
     }
 }
