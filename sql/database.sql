@@ -87,9 +87,9 @@ END
 $$;
 
 CREATE TRIGGER trigger_incr_thread
-AFTER INSERT
+  AFTER INSERT
   ON thread
-FOR EACH ROW
+  FOR EACH ROW
 EXECUTE PROCEDURE increment_thread_count();
 
 CREATE TABLE messages
@@ -116,23 +116,133 @@ CREATE UNIQUE INDEX messages_id_uindex
 
 CREATE TABLE votes
 (
-  userid   INTEGER NOT NULL
-    CONSTRAINT votes_user_id_fk
-    REFERENCES "user",
+  usernick CITEXT  NOT NULL
+    CONSTRAINT votes_user_nickname_fk
+    REFERENCES "user" (nickname),
   voice    INTEGER NOT NULL,
   threadid INTEGER NOT NULL
     CONSTRAINT votes_thread_id_fk
-    REFERENCES thread
+    REFERENCES thread,
+  CONSTRAINT votes_usernick_threadid_pk
+  UNIQUE (usernick, threadid)
 );
 
-CREATE TABLE rental
-(
-  rental_id   INTEGER NOT NULL
-    CONSTRAINT rental_pkey
-    PRIMARY KEY,
-  customer_id INTEGER,
-  rental_date TIMESTAMP
-);
+CREATE FUNCTION add_vote()
+  RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  UPDATE thread
+  SET votes = thread.votes + NEW.voice
+  WHERE id = NEW.threadid;
+  RETURN NEW;
+END
+$$;
+
+CREATE TRIGGER trigger_add_vote
+  AFTER INSERT
+  ON votes
+  FOR EACH ROW
+EXECUTE PROCEDURE add_vote();
+
+CREATE FUNCTION update_vote()
+  RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  UPDATE thread
+  SET votes = thread.votes + (NEW.voice - OLD.voice)
+  WHERE id = NEW.threadid;
+  RETURN NEW;
+END
+$$;
+
+CREATE TRIGGER trigger_update_vote
+  AFTER UPDATE
+  ON votes
+  FOR EACH ROW
+EXECUTE PROCEDURE update_vote();
+
+-- missing source code for citextin
+;
+
+-- missing source code for citextout
+;
+
+-- missing source code for citextrecv
+;
+
+-- missing source code for citextsend
+;
+
+-- missing source code for citext
+;
+
+-- missing source code for citext
+;
+
+-- missing source code for citext
+;
+
+-- missing source code for citext_eq
+;
+
+-- missing source code for citext_ne
+;
+
+-- missing source code for citext_lt
+;
+
+-- missing source code for citext_le
+;
+
+-- missing source code for citext_gt
+;
+
+-- missing source code for citext_ge
+;
+
+-- missing source code for citext_cmp
+;
+
+-- missing source code for citext_hash
+;
+
+-- missing source code for citext_smaller
+;
+
+-- missing source code for citext_larger
+;
+
+-- missing source code for min
+;
+
+-- missing source code for max
+;
+
+-- missing source code for texticlike
+;
+
+-- missing source code for texticnlike
+;
+
+-- missing source code for texticregexeq
+;
+
+-- missing source code for texticregexne
+;
+
+-- missing source code for texticlike
+;
+
+-- missing source code for texticnlike
+;
+
+-- missing source code for texticregexeq
+;
+
+-- missing source code for texticregexne
+;
 
 CREATE FUNCTION regexp_matches(CITEXT, CITEXT)
   RETURNS SETOF TEXT []

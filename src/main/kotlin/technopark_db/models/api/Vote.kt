@@ -2,10 +2,10 @@ package technopark_db.models.api
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class Vote(
+class Vote(
         @JsonProperty("nickname")
-        val nickname: String,
+        var nickname: String,
         @JsonProperty("voice")
-        val voice: Int) {
+        var voice: Int) {
     constructor() : this("", 0)
 }

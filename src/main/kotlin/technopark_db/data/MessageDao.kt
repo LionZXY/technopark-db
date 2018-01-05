@@ -36,7 +36,8 @@ class MessageDao(private val template: JdbcTemplate) {
     }
 
     fun create(idOrSlug: String, posts: List<Post>): List<MessageLocal> {
-        // TODO: Просить квоту на ключи
+        // Квота на ключи
+        val idsResultSet = template.queryForRowSet("SELECT nextval('messages_id_seq') FROM generate_series(1, ?);", posts.size)
 
         var returnVal: List<MessageLocal>
         val currentDate = Timestamp(System.currentTimeMillis())
@@ -53,7 +54,7 @@ class MessageDao(private val template: JdbcTemplate) {
         val forumid = rsForum.getInt("id")
 
         val ps = connection.prepareStatement(
-                "INSERT INTO messages (userid, tmp_nickname, message, parentid, threadid, tmp_threadslug, created)\n" +
+                "INSERT INTO messages (userid, tmp_nickname, id, message, parentid, threadid, tmp_threadslug, created)\n" +
                         "  SELECT\n" +
                         "    usr.id,\n" +
                         "    usr.nickname,\n" +
@@ -61,17 +62,21 @@ class MessageDao(private val template: JdbcTemplate) {
                         "    ?,\n" +
                         "    ?,\n" +
                         "    ?,\n" +
+                        "    ?,\n" +
                         "    ?::timestamptz\n" +
                         "  FROM \"user\" AS usr\n" +
-                        "  WHERE usr.nickname = ? :: CITEXT RETURNING id;", Statement.RETURN_GENERATED_KEYS)
+                        "  WHERE usr.nickname = ? :: CITEXT;", Statement.NO_GENERATED_KEYS)
         posts.forEach({
             ps.apply {
-                setString(1, it.message)
-                setLong(2, it.parent)
-                setInt(3, threadId)
-                setString(4, threadSlug)
-                setTimestamp(5, it.created ?: currentDate)
-                setString(6, it.author)
+                idsResultSet.next()
+                it.id = idsResultSet.getInt(1)
+                setInt(1, it.id)
+                setString(2, it.message)
+                setLong(3, it.parent)
+                setInt(4, threadId)
+                setString(5, threadSlug)
+                setTimestamp(6, it.created ?: currentDate)
+                setString(7, it.author)
                 addBatch()
             }
         })
@@ -92,10 +97,8 @@ class MessageDao(private val template: JdbcTemplate) {
             throw e
         }
 
-        val gk = ps.generatedKeys
         returnVal = posts.map {
-            gk.next()
-            MessageLocal(gk.getInt("id"),
+            MessageLocal(it.id,
                     currentDate,
                     false,
                     it.message,
@@ -104,7 +107,6 @@ class MessageDao(private val template: JdbcTemplate) {
                     it.author!!,
                     forumslug)
         }
-        gk.close()
 
         return returnVal
     }
