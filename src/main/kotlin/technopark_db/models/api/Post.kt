@@ -5,27 +5,30 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import technopark_db.models.mappers.DateAdapterDeseriliazation
 import technopark_db.models.mappers.DateAdapterSeriliazation
-import java.sql.Date
 import java.sql.Timestamp
 
-data class Post(
+class Post(
         @JsonProperty("author")
-        var author: String?,
+        public var author: String?,
         @JsonProperty("forum")
-        var forumSlug: String?,
+        public var forumSlug: String?,
         @JsonProperty("message")
-        var message: String,
+        public var message: String,
         @JsonProperty("thread")
-        var threadId: Int = 0,
+        public var threadId: Int = 0,
         @JsonProperty("id")
-        var id: Int = 0,
+        public var id: Int = 0,
         @JsonProperty("created")
         @JsonDeserialize(using = DateAdapterDeseriliazation::class)
         @JsonSerialize(using = DateAdapterSeriliazation::class)
-        var created: Timestamp? = null,
-        @JsonProperty("isEdited")
-        var isEdited: Boolean = false,
+        public var created: Timestamp? = null,
+        isEdited: Boolean = false,
         @JsonProperty("parent")
-        var parent: Long = 0L) {
+        public var parent: Long = 0L) {
+
+    @JsonProperty("isEdited")
+    @JvmField
+    public var isEdited: Boolean = isEdited
+
     constructor() : this("", "", "", 0)
 }

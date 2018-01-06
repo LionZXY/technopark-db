@@ -3,10 +3,7 @@ package technopark_db.controllers
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import technopark_db.models.api.ForumThread
-import technopark_db.models.api.Post
-import technopark_db.models.api.SortType
-import technopark_db.models.api.Vote
+import technopark_db.models.api.*
 import technopark_db.models.mappers.ForumThreadMapper
 import technopark_db.models.mappers.MessageMapper
 import technopark_db.repositories.ForumThreadRepository
@@ -30,12 +27,6 @@ class ForumThreadController(private val forumRepository: ForumThreadRepository,
 
     @PostMapping("/thread/{slug_or_id}/create")
     fun createPosts(@PathVariable slug_or_id: String, @RequestBody(required = false) posts: List<Post>?): ResponseEntity<List<Post>> {
-        if (posts == null || posts.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(emptyList<Post>())
-        }
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(messageRepository
@@ -89,5 +80,25 @@ class ForumThreadController(private val forumRepository: ForumThreadRepository,
                 .body(mapper.map(threadRepository
                         .update(slug_or_id, forumThread))
                 )
+    }
+
+    @PostMapping("/post/{id}/details")
+    fun updateMessage(@PathVariable id: String,
+                      @RequestBody(required = false) message: Post): ResponseEntity<Post> {
+        message.id = id.toInt()
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(messageMapper.map(messageRepository.update(message)))
+    }
+
+    @GetMapping("/post/{id}/details")
+    fun updateMessage(@PathVariable id: String,
+                      @RequestParam(required = false) related: Array<String>?): ResponseEntity<PostDetailedInfo> {
+        val toOutput = PostDetailedInfo()
+        toOutput.post = messageMapper.map(messageRepository.get(id.toInt()))
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(toOutput)
     }
 }

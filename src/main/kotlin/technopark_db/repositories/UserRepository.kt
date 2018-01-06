@@ -17,7 +17,6 @@ import technopark_db.models.mappers.UserMapper
 class UserRepository(private val userDao: UserDao,
                      private val forumDao: ForumDao,
                      private val mapper: UserMapper) {
-    private val LOGGER = LoggerFactory.getLogger(UserRepository::class.java)
     fun create(user: User): UserLocal {
         try {
             return userDao.create(user)

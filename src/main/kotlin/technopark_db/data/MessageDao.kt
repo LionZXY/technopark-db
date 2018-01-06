@@ -5,6 +5,9 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Controller
 import technopark_db.models.api.Post
 import technopark_db.models.api.SortType
+import technopark_db.models.exceptions.ForumNotFound
+import technopark_db.models.exceptions.ForumThreadNotFound
+import technopark_db.models.exceptions.UserNotFound
 import technopark_db.models.local.MessageLocal
 import technopark_db.utils.isNumeric
 import java.sql.*
@@ -36,9 +39,7 @@ class MessageDao(private val template: JdbcTemplate) {
         }
     }
 
-    fun create(idOrSlug: String, posts: List<Post>): List<MessageLocal> {
-        // Квота на ключи
-        val idsResultSet = template.queryForRowSet("SELECT nextval('messages_id_seq') FROM generate_series(1, ?);", posts.size)
+    fun create(idOrSlug: String, posts: List<Post>?): List<MessageLocal> {
 
         var returnVal: List<MessageLocal>
         val currentDate = Timestamp(System.currentTimeMillis())
@@ -53,6 +54,13 @@ class MessageDao(private val template: JdbcTemplate) {
         val rsForum = getForumResultSet(connection, threadId)
         val forumslug = rsForum.getString("slug")
         val forumid = rsForum.getInt("id")
+
+        if (posts == null || posts.isEmpty()) {
+            return listOf()
+        }
+
+        // Квота на ключи
+        val idsResultSet = template.queryForRowSet("SELECT nextval('messages_id_seq') FROM generate_series(1, ?);", posts.size)
 
         val ps = connection.prepareStatement(
                 "INSERT INTO messages (userid, tmp_nickname, id, message, parentid, threadid, tmp_threadslug, created, tmp_forumslug)\n" +
@@ -91,9 +99,13 @@ class MessageDao(private val template: JdbcTemplate) {
             setInt(1, posts.count())
             setInt(2, forumid)
         }
+
         try {
-            ps.executeBatch()
-            ps2.executeUpdate()
+            val changedArray = ps.executeBatch()
+            val changed = ps2.executeUpdate()
+            if (changedArray.contains(0)) {
+                throw UserNotFound()
+            }
             connection.commit()
         } catch (e: Exception) {
             connection.rollback()
@@ -128,12 +140,20 @@ class MessageDao(private val template: JdbcTemplate) {
             ps.setString(1, slugOrId)
         }
         val rs = ps.executeQuery()
-        rs.next()
+        if (!rs.next()) {
+            throw ForumThreadNotFound()
+        }
         return rs
     }
 
+    fun get(id: Int): MessageLocal {
+        return template.queryForObject("SELECT * FROM messages WHERE id = ?",
+                MESSAGEDAO,
+                id)
+    }
+
     fun update(post: Post): MessageLocal {
-        return template.queryForObject("UPDATE messages SET (message) = (coalesce(?, message)) WHERE id = ? RETURNING *;",
+        return template.queryForObject("UPDATE messages SET (message, isedited) = (coalesce(?, message), TRUE) WHERE id = ? RETURNING *;",
                 MESSAGEDAO,
                 post.message,
                 post.id)
@@ -149,7 +169,9 @@ class MessageDao(private val template: JdbcTemplate) {
 
         prepareStatementForum.setInt(1, threadId)
         val rs = prepareStatementForum.executeQuery()
-        rs.next()
+        if (!rs.next()) {
+            throw ForumNotFound()
+        }
         return rs
     }
 
