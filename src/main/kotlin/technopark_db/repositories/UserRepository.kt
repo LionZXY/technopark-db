@@ -1,5 +1,6 @@
 package technopark_db.repositories
 
+import org.slf4j.LoggerFactory
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
@@ -14,6 +15,7 @@ import technopark_db.models.mappers.UserMapper
 @Service
 class UserRepository(private val userDao: UserDao,
                      private val mapper: UserMapper) {
+    private val LOGGER = LoggerFactory.getLogger(UserRepository::class.java)
     fun create(user: User): UserLocal {
         try {
             return userDao.create(user)

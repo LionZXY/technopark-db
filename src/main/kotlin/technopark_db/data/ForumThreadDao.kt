@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Controller
+import org.springframework.transaction.annotation.Transactional
 import technopark_db.models.api.ForumThread
 import technopark_db.models.api.Vote
 import technopark_db.models.exceptions.ForumThreadNotFound
@@ -16,7 +17,7 @@ import java.sql.Timestamp
  * На стороне sql мы инкрементим forum
  */
 @Controller
-open class ForumThreadDao(private val template: JdbcTemplate) {
+class ForumThreadDao(private val template: JdbcTemplate) {
     companion object {
         private const val COLUMN_USER = "tmp_nickname"
         private const val COLUMN_ID = "id"

@@ -108,11 +108,45 @@ CREATE TABLE messages
     CONSTRAINT messages_thread_id_fk
     REFERENCES thread,
   tmp_nickname   CITEXT,
-  tmp_threadslug CITEXT
+  tmp_threadslug CITEXT,
+  tmp_forumslug  CITEXT,
+  path           BIGINT []
 );
 
 CREATE UNIQUE INDEX messages_id_uindex
   ON messages (id);
+
+CREATE FUNCTION message_path()
+  RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE newpath BIGINT [];
+BEGIN
+  IF (NEW.parentid = 0)
+  THEN
+    NEW.path = newpath || NEW.id :: BIGINT;
+    RETURN NEW;
+  END IF;
+
+  newpath = (SELECT path
+             FROM messages
+             WHERE id = NEW.parentid AND threadid = NEW.threadid);
+
+  IF (cardinality(newpath) > 0)
+  THEN
+    NEW.path = newpath || NEW.id :: BIGINT;
+    RETURN NEW;
+  END IF;
+
+  RAISE invalid_foreign_key;
+END
+$$;
+
+CREATE TRIGGER trigger_message_path_update
+  BEFORE INSERT
+  ON messages
+  FOR EACH ROW
+EXECUTE PROCEDURE message_path();
 
 CREATE TABLE votes
 (
@@ -247,6 +281,8 @@ EXECUTE PROCEDURE update_vote();
 CREATE FUNCTION regexp_matches(CITEXT, CITEXT)
   RETURNS SETOF TEXT []
 IMMUTABLE
+STRICT
+ROWS 1
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.regexp_matches($1 :: pg_catalog.TEXT, $2 :: pg_catalog.TEXT, 'i');
@@ -255,6 +291,8 @@ $$;
 CREATE FUNCTION regexp_matches(CITEXT, CITEXT, TEXT)
   RETURNS SETOF TEXT []
 IMMUTABLE
+STRICT
+ROWS 10
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.regexp_matches($1 :: pg_catalog.TEXT, $2 :: pg_catalog.TEXT, CASE WHEN pg_catalog.strpos($3, 'c') = 0
@@ -265,6 +303,7 @@ $$;
 CREATE FUNCTION regexp_replace(CITEXT, CITEXT, TEXT)
   RETURNS TEXT
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.regexp_replace($1 :: pg_catalog.TEXT, $2 :: pg_catalog.TEXT, $3, 'i');
@@ -273,6 +312,7 @@ $$;
 CREATE FUNCTION regexp_replace(CITEXT, CITEXT, TEXT, TEXT)
   RETURNS TEXT
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT
@@ -284,6 +324,7 @@ $$;
 CREATE FUNCTION regexp_split_to_array(CITEXT, CITEXT)
   RETURNS TEXT []
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.regexp_split_to_array($1 :: pg_catalog.TEXT, $2 :: pg_catalog.TEXT, 'i');
@@ -292,6 +333,7 @@ $$;
 CREATE FUNCTION regexp_split_to_array(CITEXT, CITEXT, TEXT)
   RETURNS TEXT []
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.regexp_split_to_array($1 :: pg_catalog.TEXT, $2 :: pg_catalog.TEXT,
@@ -303,6 +345,7 @@ $$;
 CREATE FUNCTION regexp_split_to_table(CITEXT, CITEXT)
   RETURNS SETOF TEXT
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.regexp_split_to_table($1 :: pg_catalog.TEXT, $2 :: pg_catalog.TEXT, 'i');
@@ -311,6 +354,7 @@ $$;
 CREATE FUNCTION regexp_split_to_table(CITEXT, CITEXT, TEXT)
   RETURNS SETOF TEXT
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.regexp_split_to_table($1 :: pg_catalog.TEXT, $2 :: pg_catalog.TEXT,
@@ -322,6 +366,7 @@ $$;
 CREATE FUNCTION strpos(CITEXT, CITEXT)
   RETURNS INTEGER
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.strpos(pg_catalog.lower($1 :: pg_catalog.TEXT), pg_catalog.lower($2 :: pg_catalog.TEXT));
@@ -330,6 +375,7 @@ $$;
 CREATE FUNCTION replace(CITEXT, CITEXT, CITEXT)
   RETURNS TEXT
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.regexp_replace($1 :: pg_catalog.TEXT,
@@ -340,6 +386,7 @@ $$;
 CREATE FUNCTION split_part(CITEXT, CITEXT, INTEGER)
   RETURNS TEXT
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT (pg_catalog.regexp_split_to_array($1 :: pg_catalog.TEXT,
@@ -350,6 +397,7 @@ $$;
 CREATE FUNCTION translate(CITEXT, CITEXT, TEXT)
   RETURNS TEXT
 IMMUTABLE
+STRICT
 LANGUAGE SQL
 AS $$
 SELECT pg_catalog.translate(pg_catalog.translate($1 :: pg_catalog.TEXT, pg_catalog.lower($2 :: pg_catalog.TEXT), $3),

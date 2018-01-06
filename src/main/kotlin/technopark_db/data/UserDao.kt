@@ -4,13 +4,14 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import technopark_db.models.api.User
 import technopark_db.models.local.UserLocal
 import java.sql.ResultSet
 import java.util.*
 
 @Service
-open class UserDao(private val template: JdbcTemplate) {
+class UserDao(private val template: JdbcTemplate) {
     companion object {
         private const val COLUMN_ABOUT = "about"
         private const val COLUMN_EMAIL = "email"

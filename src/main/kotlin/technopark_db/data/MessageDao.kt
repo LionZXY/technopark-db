@@ -3,6 +3,7 @@ package technopark_db.data
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Controller
+import org.springframework.transaction.annotation.Transactional
 import technopark_db.models.api.Post
 import technopark_db.models.api.SortType
 import technopark_db.models.local.MessageLocal
@@ -98,6 +99,9 @@ class MessageDao(private val template: JdbcTemplate) {
         } catch (e: Exception) {
             connection.rollback()
             throw e
+        } finally {
+            connection.autoCommit = true
+            connection.close()
         }
 
         returnVal = posts.map {
@@ -110,6 +114,7 @@ class MessageDao(private val template: JdbcTemplate) {
                     it.author!!,
                     forumslug)
         }
+
 
         return returnVal
     }
