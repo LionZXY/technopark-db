@@ -1,7 +1,5 @@
 package technopark_db.di
 
-import org.springframework.boot.context.embedded.undertow.UndertowBuilderCustomizer
-import org.springframework.boot.context.embedded.undertow.UndertowEmbeddedServletContainerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import technopark_db.models.api.User

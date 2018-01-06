@@ -1,6 +1,5 @@
 package technopark_db.models.local
 
-import java.sql.Date
 import java.sql.Timestamp
 
 data class MessageLocal(

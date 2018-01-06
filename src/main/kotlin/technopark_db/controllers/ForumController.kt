@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*
 import technopark_db.models.api.Forum
 import technopark_db.models.api.ForumThread
 import technopark_db.models.api.MyTimestamp
-import technopark_db.models.api.User
 import technopark_db.models.mappers.ForumMapper
 import technopark_db.models.mappers.ForumThreadMapper
 import technopark_db.repositories.ForumRepository

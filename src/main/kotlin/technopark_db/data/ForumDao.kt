@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import technopark_db.models.api.Forum
 import technopark_db.models.exceptions.ForumNotFound
 import technopark_db.models.local.ForumLocal

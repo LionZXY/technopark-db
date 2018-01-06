@@ -25,7 +25,7 @@ open class Application : SpringBootServletInitializer() {
 
     companion object {
         //TODO: Add HTTP2, because faster
-        
+
         val jacksonMapper = ObjectMapper().registerKotlinModule()
                 .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
                 .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)

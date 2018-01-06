@@ -1,7 +1,6 @@
 package technopark_db.utils
 
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
 
 class Constants {
