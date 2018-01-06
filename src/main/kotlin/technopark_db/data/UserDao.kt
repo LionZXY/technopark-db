@@ -4,7 +4,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import technopark_db.models.api.User
 import technopark_db.models.local.UserLocal
 import java.sql.ResultSet
@@ -47,6 +46,43 @@ class UserDao(private val template: JdbcTemplate) {
                 user.nickname)
 
 
+    }
+
+    fun getUsers(slug: String, limit: Long, since: String?, desc: Boolean): List<UserLocal> {
+        var argsObject = ArrayList<Any>()
+
+        var sql = "SELECT *\n" +
+                "FROM (SELECT userid, tmp_nickname\n" +
+                "      FROM thread\n" +
+                "      WHERE tmp_forumslug = ? :: CITEXT\n" +
+                "      UNION SELECT userid, tmp_nickname\n" +
+                "            FROM messages\n" +
+                "            WHERE tmp_forumslug = ? :: CITEXT ) AS uid\n" +
+                "  JOIN \"user\" AS usr ON uid.userid = usr.id "
+        argsObject.add(slug)
+        argsObject.add(slug)
+
+        if (since != null) {
+            sql += if (desc) {
+                "WHERE nickname < ?::CITEXT "
+            } else {
+                "WHERE nickname > ?::CITEXT "
+            }
+            argsObject.add(since)
+        }
+
+        sql += if (desc) {
+            "ORDER BY nickname DESC "
+        } else {
+            "ORDER BY nickname ASC "
+        }
+
+        if (limit != -1L) {
+            sql += "LIMIT ?"
+            argsObject.add(limit)
+        }
+
+        return template.query(sql, argsObject.toArray(), USERMAPPER)
     }
 
     fun getUser(nickname: String, email: String? = null): List<UserLocal> {

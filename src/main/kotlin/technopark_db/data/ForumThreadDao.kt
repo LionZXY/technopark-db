@@ -6,9 +6,11 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Controller
 import org.springframework.transaction.annotation.Transactional
 import technopark_db.models.api.ForumThread
+import technopark_db.models.api.User
 import technopark_db.models.api.Vote
 import technopark_db.models.exceptions.ForumThreadNotFound
 import technopark_db.models.local.ForumThreadLocal
+import technopark_db.models.local.UserLocal
 import java.sql.ResultSet
 import java.sql.Timestamp
 
@@ -38,6 +40,15 @@ class ForumThreadDao(private val template: JdbcTemplate) {
                     rs.getString(COLUMN_FORUM),
                     rs.getInt(COLUMN_VOTES))
         }
+    }
+
+    fun update(forumThread: ForumThread): ForumThreadLocal {
+        return template.queryForObject("UPDATE thread SET (title, messagetext) = (coalesce(?, title), coalesce(?::CITEXT, messagetext)) WHERE slug = ?::CITEXT OR id = ? RETURNING *;",
+                THREADMAPPER,
+                forumThread.title,
+                forumThread.message,
+                forumThread.slug,
+                forumThread.id)
     }
 
     fun create(forumThread: ForumThread): ForumThreadLocal {

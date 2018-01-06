@@ -81,4 +81,13 @@ class ForumThreadController(private val forumRepository: ForumThreadRepository,
                         .get(slug_or_id))
                 )
     }
+
+    @PostMapping("/thread/{slug_or_id}/details")
+    fun update(@PathVariable slug_or_id: String, @RequestBody(required = false) forumThread: ForumThread): ResponseEntity<ForumThread> {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(mapper.map(threadRepository
+                        .update(slug_or_id, forumThread))
+                )
+    }
 }

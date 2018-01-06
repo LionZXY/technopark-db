@@ -23,6 +23,15 @@ class UserController(
                 );
     }
 
+
+    @GetMapping("/forum/{slug}/users")
+    fun getUsers(@PathVariable slug: String,
+                 @RequestParam(required = false, defaultValue = "-1") limit: Long,
+                 @RequestParam(required = false) since: String? = null,
+                 @RequestParam(required = false, defaultValue = "false") desc: Boolean): List<UserLocal> {
+        return userRepository.getUsers(slug, limit, since, desc)
+    }
+
     @GetMapping("/user/{nickname}/profile")
     fun getUser(@PathVariable nickname: String): UserLocal {
         return userRepository.getUser(nickname)

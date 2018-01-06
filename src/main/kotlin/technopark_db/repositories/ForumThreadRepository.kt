@@ -40,6 +40,15 @@ class ForumThreadRepository(private val forumThreadDao: ForumThreadDao,
         }
     }
 
+    fun update(slugOrId: String, forumThread: ForumThread): ForumThreadLocal {
+        if (slugOrId.isNumeric()) {
+            forumThread.id = slugOrId.toInt()
+        } else {
+            forumThread.slug = slugOrId
+        }
+        return forumThreadDao.update(forumThread)
+    }
+
     fun vote(slugOrId: String, vote: Vote): ForumThreadLocal {
         return if (slugOrId.isNumeric()) {
             forumThreadDao.voteById(slugOrId.toInt(), vote)

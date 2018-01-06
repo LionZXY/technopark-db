@@ -9,6 +9,7 @@ data class Forum(
         var title: String,
         @JsonProperty("user")
         var user: String,
+        @JsonProperty("posts")
         var postCount: Int = 0,
         var threads: Int = 0 /* Веток */) {
     constructor() : this("", "", "")

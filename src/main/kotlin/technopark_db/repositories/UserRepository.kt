@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
+import technopark_db.data.ForumDao
 import technopark_db.data.UserDao
 import technopark_db.models.api.User
 import technopark_db.models.exceptions.UserAlreadyCreated
@@ -14,6 +15,7 @@ import technopark_db.models.mappers.UserMapper
 
 @Service
 class UserRepository(private val userDao: UserDao,
+                     private val forumDao: ForumDao,
                      private val mapper: UserMapper) {
     private val LOGGER = LoggerFactory.getLogger(UserRepository::class.java)
     fun create(user: User): UserLocal {
@@ -23,6 +25,11 @@ class UserRepository(private val userDao: UserDao,
             val existUsers = userDao.getUser(user.nickname!!, user.email)
             throw UserAlreadyCreated(existUsers.map { mapper.map(it) })
         }
+    }
+
+    fun getUsers(slug: String, limit: Long, since: String?, desc: Boolean): List<UserLocal> {
+        forumDao.get(slug)
+        return userDao.getUsers(slug, limit, since, desc)
     }
 
     fun getUser(nickname: String): UserLocal {

@@ -1,19 +1,15 @@
 package technopark_db.models.api
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import technopark_db.models.mappers.DateAdapterDeseriliazation
 import technopark_db.models.mappers.DateAdapterSeriliazation
-import java.sql.Date
-import java.sql.Time
 import java.sql.Timestamp
-import java.time.OffsetDateTime
 
 data class ForumThread(
         @JsonProperty("author")
-        val author: String,
+        val author: String?,
         @JsonProperty("message")
         val message: String,
         @JsonProperty("slug")
@@ -27,8 +23,8 @@ data class ForumThread(
         @JsonProperty("forum")
         var forum: String?,
         @JsonProperty("id")
-        var id: Int = 0,
+        var id: Int = -1,
         @JsonProperty("votes")
         var votes: Int = 0) {
-    constructor() : this("", "", "", "", Timestamp(0L), "")
+    constructor() : this("", "", null, "", Timestamp(0L), "")
 }

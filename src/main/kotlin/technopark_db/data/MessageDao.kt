@@ -3,7 +3,6 @@ package technopark_db.data
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Controller
-import org.springframework.transaction.annotation.Transactional
 import technopark_db.models.api.Post
 import technopark_db.models.api.SortType
 import technopark_db.models.local.MessageLocal
@@ -133,7 +132,14 @@ class MessageDao(private val template: JdbcTemplate) {
         return rs
     }
 
-    private inline fun getForumResultSet(con: Connection, threadId: Int): ResultSet {
+    fun update(post: Post): MessageLocal {
+        return template.queryForObject("UPDATE messages SET (message) = (coalesce(?, message)) WHERE id = ? RETURNING *;",
+                MESSAGEDAO,
+                post.message,
+                post.id)
+    }
+
+    private fun getForumResultSet(con: Connection, threadId: Int): ResultSet {
         val prepareStatementForum = con.prepareStatement("SELECT\n" +
                 "  forum.slug,\n" +
                 "  forum.id\n" +
