@@ -13,7 +13,7 @@ class Post(
         @JsonProperty("forum")
         public var forumSlug: String?,
         @JsonProperty("message")
-        public var message: String,
+        public var message: String?,
         @JsonProperty("thread")
         public var threadId: Int = 0,
         @JsonProperty("id")

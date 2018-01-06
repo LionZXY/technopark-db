@@ -119,7 +119,7 @@ class MessageDao(private val template: JdbcTemplate) {
             MessageLocal(it.id,
                     currentDate,
                     false,
-                    it.message,
+                    it.message!!,
                     threadId,
                     it.parent,
                     it.author!!,
@@ -153,8 +153,9 @@ class MessageDao(private val template: JdbcTemplate) {
     }
 
     fun update(post: Post): MessageLocal {
-        return template.queryForObject("UPDATE messages SET (message, isedited) = (coalesce(?, message), TRUE) WHERE id = ? RETURNING *;",
+        return template.queryForObject("UPDATE messages SET (message, isedited) = (coalesce(?, message), message <> ?) WHERE id = ? RETURNING *;",
                 MESSAGEDAO,
+                post.message,
                 post.message,
                 post.id)
     }

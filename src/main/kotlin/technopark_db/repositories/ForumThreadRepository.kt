@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import technopark_db.data.ForumThreadDao
 import technopark_db.models.api.ForumThread
 import technopark_db.models.api.Vote
+import technopark_db.models.exceptions.ForumThreadNotFound
 import technopark_db.models.exceptions.ThreadAlreadyCreated
 import technopark_db.models.exceptions.UserNotFound
 import technopark_db.models.local.ForumThreadLocal
@@ -46,14 +47,22 @@ class ForumThreadRepository(private val forumThreadDao: ForumThreadDao,
         } else {
             forumThread.slug = slugOrId
         }
-        return forumThreadDao.update(forumThread)
+        try {
+            return forumThreadDao.update(forumThread)
+        } catch (e: EmptyResultDataAccessException) {
+            throw ForumThreadNotFound()
+        }
     }
 
     fun vote(slugOrId: String, vote: Vote): ForumThreadLocal {
-        return if (slugOrId.isNumeric()) {
-            forumThreadDao.voteById(slugOrId.toInt(), vote)
-        } else {
-            forumThreadDao.voteBySlug(slugOrId, vote)
+        try {
+            return if (slugOrId.isNumeric()) {
+                forumThreadDao.voteById(slugOrId.toInt(), vote)
+            } else {
+                forumThreadDao.voteBySlug(slugOrId, vote)
+            }
+        } catch (e: DataIntegrityViolationException) {
+            throw ForumThreadNotFound()
         }
     }
 }

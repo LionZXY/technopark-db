@@ -11,11 +11,11 @@ data class ForumThread(
         @JsonProperty("author")
         val author: String?,
         @JsonProperty("message")
-        val message: String,
+        val message: String?,
         @JsonProperty("slug")
         var slug: String?,
         @JsonProperty("title")
-        val title: String,
+        val title: String?,
         @JsonProperty("created")
         @JsonDeserialize(using = DateAdapterDeseriliazation::class)
         @JsonSerialize(using = DateAdapterSeriliazation::class)
