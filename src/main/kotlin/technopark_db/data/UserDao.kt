@@ -74,9 +74,9 @@ class UserDao(private val template: JdbcTemplate) {
 
         if (since != null) {
             sql += if (desc) {
-                "WHERE fu.nickname < ?::CITEXT "
+                "AND fu.nickname < ?::CITEXT "
             } else {
-                "WHERE fu.nickname > ?::CITEXT "
+                "AND fu.nickname > ?::CITEXT "
             }
             argsObject.add(since)
         }
