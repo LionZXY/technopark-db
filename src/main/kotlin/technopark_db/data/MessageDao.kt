@@ -51,8 +51,6 @@ class MessageDao(private val template: JdbcTemplate) {
     }
 
     private fun create(connection: Connection, idOrSlug: String, posts: List<Post>?): List<MessageLocal> {
-
-        var returnVal: List<MessageLocal>
         val currentDate = Timestamp(System.currentTimeMillis())
 
         val rsThread = getSlugAndIdByThread(connection, idOrSlug)
@@ -120,7 +118,7 @@ class MessageDao(private val template: JdbcTemplate) {
             throw e
         }
 
-        returnVal = posts.map {
+        return posts.map {
             MessageLocal(it.id,
                     currentDate,
                     false,
@@ -130,9 +128,6 @@ class MessageDao(private val template: JdbcTemplate) {
                     it.author!!,
                     forumslug)
         }
-
-
-        return returnVal
     }
 
     private fun getSlugAndIdByThread(con: Connection, slugOrId: String): ResultSet {
