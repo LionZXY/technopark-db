@@ -16,7 +16,6 @@ import java.sql.BatchUpdateException
 @Service
 class MessageRepository(private val messageDao: MessageDao,
                         private val threadDao: ForumThreadDao) {
-    private val LOGGER = LoggerFactory.getLogger(MessageRepository::class.java)
     fun create(slugOrId: String, posts: List<Post>?): List<MessageLocal> {
         try {
             return messageDao.create(slugOrId, posts)
@@ -24,9 +23,6 @@ class MessageRepository(private val messageDao: MessageDao,
             if (e.nextException.message.equals("ERROR: invalid_foreign_key")) {
                 throw PostAlreadyCreated();
             }
-            throw e
-        } catch (e: Exception) {
-            LOGGER.error("create", e)
             throw e
         }
     }

@@ -45,6 +45,7 @@ class ServiceDao(private val template: JdbcTemplate) {
                 "DELETE FROM votes;\n" +
                 "DELETE FROM thread;\n" +
                 "DELETE FROM forum;\n" +
-                "DELETE FROM \"user\";")
+                "DELETE FROM \"user\";" +
+                "DELETE FROM forum_user;")
     }
 }

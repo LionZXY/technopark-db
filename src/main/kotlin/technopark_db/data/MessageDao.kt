@@ -14,7 +14,8 @@ import java.sql.*
 
 
 @Controller
-class MessageDao(private val template: JdbcTemplate) {
+class MessageDao(private val template: JdbcTemplate,
+                 private val userDao: UserDao) {
 
     companion object {
         private const val COLUMN_USER = "tmp_nickname"
@@ -52,6 +53,8 @@ class MessageDao(private val template: JdbcTemplate) {
 
     private fun create(connection: Connection, idOrSlug: String, posts: List<Post>?): List<MessageLocal> {
         val currentDate = Timestamp(System.currentTimeMillis())
+
+        userDao.markDirty()
 
         val rsThread = getSlugAndIdByThread(connection, idOrSlug)
         val threadId = rsThread.getInt("id")

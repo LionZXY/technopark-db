@@ -16,7 +16,8 @@ import java.sql.Timestamp
  * На стороне sql мы инкрементим forum
  */
 @Controller
-class ForumThreadDao(private val template: JdbcTemplate) {
+class ForumThreadDao(private val template: JdbcTemplate,
+                     private val userDao: UserDao) {
     companion object {
         private const val COLUMN_USER = "tmp_nickname"
         private const val COLUMN_ID = "id"
@@ -49,6 +50,7 @@ class ForumThreadDao(private val template: JdbcTemplate) {
     }
 
     fun create(forumThread: ForumThread): ForumThreadLocal {
+        userDao.markDirty()
         return template.queryForObject(
                 "INSERT INTO thread (userid, tmp_nickname, forumid, tmp_forumslug, messagetext, slug, title, created)\n" +
                         "  SELECT\n" +

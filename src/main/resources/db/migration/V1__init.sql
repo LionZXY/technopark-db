@@ -200,4 +200,14 @@ CREATE TRIGGER trigger_update_vote
   AFTER UPDATE
   ON votes
   FOR EACH ROW
-EXECUTE PROCEDURE update_vote()
+EXECUTE PROCEDURE update_vote();
+
+CREATE TABLE forum_user
+(
+  forumslug CITEXT,
+  nickname  CITEXT COLLATE ucs_basic,
+  UNIQUE (forumslug, nickname)
+);
+
+CREATE INDEX forum_user_forumslug_nickname_uindex
+  ON forum_user (forumslug, nickname);

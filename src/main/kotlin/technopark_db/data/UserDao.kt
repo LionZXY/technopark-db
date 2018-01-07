@@ -11,6 +11,8 @@ import java.util.*
 
 @Service
 class UserDao(private val template: JdbcTemplate) {
+    private var dirty: Boolean = false;
+
     companion object {
         private const val COLUMN_ABOUT = "about"
         private const val COLUMN_EMAIL = "email"
@@ -23,6 +25,10 @@ class UserDao(private val template: JdbcTemplate) {
                     rs.getString(COLUMN_FULLNAME),
                     rs.getString(COLUMN_ABOUT))
         }
+    }
+
+    fun markDirty() {
+        dirty = true
     }
 
     fun create(user: User): UserLocal {
@@ -49,6 +55,15 @@ class UserDao(private val template: JdbcTemplate) {
     }
 
     fun getUsers(slug: String, limit: Long, since: String?, desc: Boolean): List<UserLocal> {
+        if (dirty) {
+            synchronized(this) {
+                if (dirty) {
+                    generateFUTable()
+                }
+                dirty = false
+            }
+        }
+
         var argsObject = ArrayList<Any>()
 
         var sql = "SELECT *\n" +
@@ -107,5 +122,14 @@ class UserDao(private val template: JdbcTemplate) {
             e.printStackTrace()
         }
         return Collections.emptyList()
+    }
+
+    private fun generateFUTable() {
+        template.update("INSERT INTO forum_user (forumslug, nickname)\n" +
+                "    SELECT tmp_forumslug, tmp_nickname FROM thread\n" +
+                "ON CONFLICT DO NOTHING;\n" +
+                "INSERT INTO forum_user (forumslug, nickname)\n" +
+                "  SELECT tmp_forumslug, tmp_nickname FROM messages\n" +
+                "ON CONFLICT DO NOTHING;")
     }
 }
