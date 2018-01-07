@@ -71,7 +71,6 @@ class UserDao(private val template: JdbcTemplate) {
                 "  JOIN \"user\" AS usr ON usr.nickname = fu.nickname\n" +
                 "WHERE forumslug = ?::CITEXT "
         argsObject.add(slug)
-        argsObject.add(slug)
 
         if (since != null) {
             sql += if (desc) {
