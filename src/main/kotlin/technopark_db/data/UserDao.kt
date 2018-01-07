@@ -67,29 +67,25 @@ class UserDao(private val template: JdbcTemplate) {
         var argsObject = ArrayList<Any>()
 
         var sql = "SELECT *\n" +
-                "FROM (SELECT userid, tmp_nickname\n" +
-                "      FROM thread\n" +
-                "      WHERE tmp_forumslug = ? :: CITEXT\n" +
-                "      UNION SELECT userid, tmp_nickname\n" +
-                "            FROM messages\n" +
-                "            WHERE tmp_forumslug = ? :: CITEXT ) AS uid\n" +
-                "  JOIN \"user\" AS usr ON uid.userid = usr.id "
+                "FROM forum_user AS fu\n" +
+                "  JOIN \"user\" AS usr ON usr.nickname = fu.nickname\n" +
+                "WHERE forumslug = ?::CITEXT "
         argsObject.add(slug)
         argsObject.add(slug)
 
         if (since != null) {
             sql += if (desc) {
-                "WHERE nickname < ?::CITEXT "
+                "WHERE fu.nickname < ?::CITEXT "
             } else {
-                "WHERE nickname > ?::CITEXT "
+                "WHERE fu.nickname > ?::CITEXT "
             }
             argsObject.add(since)
         }
 
         sql += if (desc) {
-            "ORDER BY nickname DESC "
+            "ORDER BY fu.nickname DESC "
         } else {
-            "ORDER BY nickname ASC "
+            "ORDER BY fu.nickname ASC "
         }
 
         if (limit != -1L) {
