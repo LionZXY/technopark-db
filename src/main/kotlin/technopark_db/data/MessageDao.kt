@@ -40,12 +40,20 @@ class MessageDao(private val template: JdbcTemplate) {
     }
 
     fun create(idOrSlug: String, posts: List<Post>?): List<MessageLocal> {
+        val connection = template.dataSource.connection
+        try {
+            connection.autoCommit = false
+            return create(connection, idOrSlug, posts)
+        } finally {
+            connection.autoCommit = true
+            connection.close()
+        }
+    }
+
+    private fun create(connection: Connection, idOrSlug: String, posts: List<Post>?): List<MessageLocal> {
 
         var returnVal: List<MessageLocal>
         val currentDate = Timestamp(System.currentTimeMillis())
-        val connection = template.dataSource.connection
-
-        connection.autoCommit = false
 
         val rsThread = getSlugAndIdByThread(connection, idOrSlug)
         val threadId = rsThread.getInt("id")
@@ -110,9 +118,6 @@ class MessageDao(private val template: JdbcTemplate) {
         } catch (e: Exception) {
             connection.rollback()
             throw e
-        } finally {
-            connection.autoCommit = true
-            connection.close()
         }
 
         returnVal = posts.map {

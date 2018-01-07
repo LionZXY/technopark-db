@@ -1,10 +1,7 @@
 package technopark_db.models.api
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import technopark_db.models.mappers.DateAdapterDeseriliazation
-import technopark_db.models.mappers.DateAdapterSeriliazation
 import java.sql.Timestamp
 
 data class ForumThread(
@@ -17,8 +14,7 @@ data class ForumThread(
         @JsonProperty("title")
         val title: String?,
         @JsonProperty("created")
-        @JsonDeserialize(using = DateAdapterDeseriliazation::class)
-        @JsonSerialize(using = DateAdapterSeriliazation::class)
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
         var created: Timestamp?,
         @JsonProperty("forum")
         var forum: String?,

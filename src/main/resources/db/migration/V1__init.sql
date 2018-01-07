@@ -118,6 +118,9 @@ CREATE TABLE messages
 CREATE UNIQUE INDEX messages_id_uindex
   ON messages (id);
 
+CREATE INDEX messages_pid_threadid_index
+  ON messages (parentid, threadid);
+
 CREATE FUNCTION message_path()
   RETURNS TRIGGER
 LANGUAGE plpgsql
