@@ -54,7 +54,8 @@ ENV WORKDIR ./
 
 COPY . .
 
+RUN ./gradlew clean build
+
 CMD service postgresql start &&\
-    ./gradlew clean build &&\
     java -jar ./build/libs/technopark-db-0.1.0.jar
 
