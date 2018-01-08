@@ -121,8 +121,17 @@ CREATE TABLE messages
 CREATE UNIQUE INDEX messages_id_uindex
   ON messages (id);
 
-CREATE INDEX messages_pid_threadid_index
+CREATE INDEX messages_pid_threadid_asc_index
   ON messages (parentid, threadid, path, id);
+
+CREATE INDEX messages_pid_threadid_desc_index
+  ON messages (parentid, threadid, path DESC, id DESC);
+
+CREATE INDEX messages_threadid_asc_index
+  ON messages (threadid, path, id);
+
+CREATE INDEX messages_threadid_desc_index
+  ON messages (threadid, path DESC, id DESC);
 
 CREATE INDEX messages_pid_threadid_with_zero_index
   ON messages (threadid, path, id)
