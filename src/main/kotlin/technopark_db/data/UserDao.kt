@@ -125,6 +125,6 @@ class UserDao(private val template: JdbcTemplate) {
                 "ON CONFLICT DO NOTHING;\n" +
                 "INSERT INTO forum_user (forumslug, nickname)\n" +
                 "  SELECT tmp_forumslug, tmp_nickname FROM messages\n" +
-                "ON CONFLICT DO NOTHING;")
+                "ON CONFLICT DO NOTHING;VACUUM ANALYZE;")
     }
 }
