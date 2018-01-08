@@ -57,5 +57,5 @@ COPY . .
 RUN ./gradlew clean build
 
 CMD service postgresql start &&\
-    java -jar ./build/libs/technopark-db-0.1.0.jar
+    java -jar -Xmx300M -Xmx300M ./build/libs/technopark-db-0.1.0.jar
 
