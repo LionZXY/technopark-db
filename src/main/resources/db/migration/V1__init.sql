@@ -121,7 +121,7 @@ CREATE UNIQUE INDEX messages_id_uindex
 CREATE INDEX messages_pid_threadid_index
   ON messages (parentid, threadid, path, id);
 
-CREATE INDEX messages_pid_threadid_index
+CREATE INDEX messages_pid_threadid_with_zero_index
   ON messages (threadid, path, id) WHERE parentid = 0;
 
 CREATE INDEX messages_pid_created_index
