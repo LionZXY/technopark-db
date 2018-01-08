@@ -115,7 +115,7 @@ CREATE TABLE messages
   tmp_nickname   CITEXT,
   tmp_threadslug CITEXT,
   tmp_forumslug  CITEXT,
-  path           BIGINT []
+  path           INT []
 );
 
 CREATE UNIQUE INDEX messages_id_uindex
@@ -150,11 +150,11 @@ CREATE FUNCTION message_path()
   RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
-DECLARE newpath BIGINT [];
+DECLARE newpath INT [];
 BEGIN
   IF (NEW.parentid = 0)
   THEN
-    NEW.path = newpath || NEW.id :: BIGINT;
+    NEW.path = newpath || NEW.id :: INT;
     RETURN NEW;
   END IF;
 
@@ -164,7 +164,7 @@ BEGIN
 
   IF (cardinality(newpath) > 0)
   THEN
-    NEW.path = newpath || NEW.id :: BIGINT;
+    NEW.path = newpath || NEW.id :: INT;
     RETURN NEW;
   END IF;
 
