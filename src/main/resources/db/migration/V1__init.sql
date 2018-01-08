@@ -119,7 +119,10 @@ CREATE UNIQUE INDEX messages_id_uindex
   ON messages (id);
 
 CREATE INDEX messages_pid_threadid_index
-  ON messages (parentid, threadid);
+  ON messages (parentid, threadid, path, id);
+
+CREATE INDEX "messages_path[1]_index"
+  ON messages ((path [1]), path, id);
 
 CREATE FUNCTION message_path()
   RETURNS TRIGGER
