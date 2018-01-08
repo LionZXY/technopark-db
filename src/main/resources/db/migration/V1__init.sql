@@ -221,6 +221,7 @@ EXECUTE PROCEDURE update_vote();
 CREATE TABLE forum_user
 (
   forumslug CITEXT,
+  userid    INT,
   nickname  CITEXT COLLATE ucs_basic,
   UNIQUE (forumslug, nickname),
   id        SERIAL NOT NULL
@@ -232,4 +233,4 @@ CREATE INDEX forum_user_forumslug_nickname_asc_uindex
   ON forum_user (forumslug, nickname);
 
 CREATE INDEX forum_user_forumslug_nickname_desc_uindex
-  ON forum_user (forumslug, nickname DESC );
+  ON forum_user (forumslug, nickname DESC);

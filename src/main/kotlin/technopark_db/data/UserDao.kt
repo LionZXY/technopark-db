@@ -68,7 +68,7 @@ class UserDao(private val template: JdbcTemplate) {
 
         var sql = "SELECT usr.about, usr.nickname, usr.email, usr.fullname\n" +
                 "FROM forum_user AS fu\n" +
-                "  JOIN \"user\" AS usr ON usr.nickname = fu.nickname\n" +
+                "  JOIN \"user\" AS usr ON usr.id = fu.userid\n" +
                 "WHERE forumslug = ?::CITEXT "
         argsObject.add(slug)
 
@@ -120,11 +120,22 @@ class UserDao(private val template: JdbcTemplate) {
     }
 
     private fun generateFUTable() {
-        template.update("INSERT INTO forum_user (forumslug, nickname)\n" +
-                "    SELECT tmp_forumslug, tmp_nickname FROM thread\n" +
-                "ON CONFLICT DO NOTHING;\n" +
-                "INSERT INTO forum_user (forumslug, nickname)\n" +
-                "  SELECT tmp_forumslug, tmp_nickname FROM messages\n" +
-                "ON CONFLICT DO NOTHING;VACUUM ANALYZE;")
+        template.update("""
+INSERT INTO forum_user (forumslug, nickname, userid)
+  SELECT
+    tmp_forumslug,
+    tmp_nickname,
+    userid
+  FROM thread
+ON CONFLICT DO NOTHING;
+INSERT INTO forum_user (forumslug, nickname, userid)
+  SELECT
+    tmp_forumslug,
+    tmp_nickname,
+    userid
+  FROM messages
+ON CONFLICT DO NOTHING;
+VACUUM ANALYZE;
+            """)
     }
 }
