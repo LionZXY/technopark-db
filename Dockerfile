@@ -37,6 +37,8 @@ RUN echo "host all  all    0.0.0.0/0  trust" >> /etc/postgresql/$POSTGRESV/main/
 
 RUN echo "listen_addresses='*'" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
 RUN echo "synchronous_commit=off" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
+RUN echo "full_page_writes = off" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
+RUN echo "wal_buffers = 3MB" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
 
 EXPOSE 5432
 
