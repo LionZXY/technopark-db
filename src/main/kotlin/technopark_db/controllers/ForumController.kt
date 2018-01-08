@@ -1,5 +1,6 @@
 package technopark_db.controllers
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -10,6 +11,7 @@ import technopark_db.models.api.MyTimestamp
 import technopark_db.models.mappers.ForumMapper
 import technopark_db.models.mappers.ForumThreadMapper
 import technopark_db.repositories.ForumRepository
+import java.sql.Timestamp
 
 @RestController
 class ForumController(private val repo: ForumRepository,
