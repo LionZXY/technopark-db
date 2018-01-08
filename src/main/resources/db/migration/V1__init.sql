@@ -145,6 +145,8 @@ CREATE INDEX messages_pid_created_desc_index
 
 CREATE INDEX "messages_path[1]_index"
   ON messages ((path [1]), path, id);
+CREATE INDEX "messages_path[1]_desc_index"
+  ON messages ((path [1]), path DESC, id DESC);
 
 CREATE FUNCTION message_path()
   RETURNS TRIGGER
