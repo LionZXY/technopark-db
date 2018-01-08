@@ -28,9 +28,9 @@ class FlatSort : SortSqlGeneration() {
         }
 
         sql += if (desc) {
-            "ORDER BY created DESC, id DESC "
+            "ORDER BY id DESC "
         } else {
-            "ORDER BY created ASC, id ASC "
+            "ORDER BY id ASC "
         }
 
         if (limit != -1) {

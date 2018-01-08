@@ -66,7 +66,7 @@ class UserDao(private val template: JdbcTemplate) {
 
         var argsObject = ArrayList<Any>()
 
-        var sql = "SELECT *\n" +
+        var sql = "SELECT usr.about, usr.nickname, usr.email, usr.fullname\n" +
                 "FROM forum_user AS fu\n" +
                 "  JOIN \"user\" AS usr ON usr.nickname = fu.nickname\n" +
                 "WHERE forumslug = ?::CITEXT "

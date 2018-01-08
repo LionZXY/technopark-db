@@ -129,13 +129,10 @@ CREATE INDEX messages_pid_threadid_with_zero_index
   WHERE parentid = 0;
 
 CREATE INDEX messages_pid_created_index
-  ON messages (threadid, id, created);
-
-CREATE INDEX messages_pid_created_asc_index
-  ON messages (threadid, created, id);
+  ON messages (threadid, id);
 
 CREATE INDEX messages_pid_created_desc_index
-  ON messages (threadid, created DESC, id DESC);
+  ON messages (threadid, id DESC);
 
 CREATE INDEX "messages_path[1]_index"
   ON messages ((path [1]), path, id);
@@ -225,7 +222,10 @@ CREATE TABLE forum_user
 (
   forumslug CITEXT,
   nickname  CITEXT COLLATE ucs_basic,
-  UNIQUE (forumslug, nickname)
+  UNIQUE (forumslug, nickname),
+  id            SERIAL                                 NOT NULL
+    CONSTRAINT forum_user_pkey
+    PRIMARY KEY
 );
 
 CREATE INDEX forum_user_forumslug_nickname_uindex
