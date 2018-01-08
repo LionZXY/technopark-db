@@ -73,8 +73,11 @@ CREATE UNIQUE INDEX thread_id_uindex
 CREATE UNIQUE INDEX thread_slug_uindex
   ON thread (slug);
 
-CREATE INDEX thread_created_index
-  ON thread (created);
+CREATE INDEX thread_created_asc_index
+  ON thread (tmp_forumslug, created);
+
+CREATE INDEX thread_created_desc_index
+  ON thread (tmp_forumslug, created DESC);
 
 CREATE FUNCTION increment_thread_count()
   RETURNS TRIGGER
@@ -121,8 +124,18 @@ CREATE UNIQUE INDEX messages_id_uindex
 CREATE INDEX messages_pid_threadid_index
   ON messages (parentid, threadid, path, id);
 
+CREATE INDEX messages_pid_threadid_with_zero_index
+  ON messages (threadid, path, id)
+  WHERE parentid = 0;
+
 CREATE INDEX messages_pid_created_index
   ON messages (threadid, id, created);
+
+CREATE INDEX messages_pid_created_asc_index
+  ON messages (threadid, created, id);
+
+CREATE INDEX messages_pid_created_desc_index
+  ON messages (threadid, created DESC, id DESC);
 
 CREATE INDEX "messages_path[1]_index"
   ON messages ((path [1]), path, id);

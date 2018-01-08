@@ -3,12 +3,17 @@ package technopark_db.models.utils
 import org.springframework.jdbc.core.JdbcTemplate
 import technopark_db.data.MessageDao
 import technopark_db.models.local.MessageLocal
-import java.util.*
 
 class FlatSort : SortSqlGeneration() {
     override fun getSql(template: JdbcTemplate, threadid: Int, limit: Int, since: Int, desc: Boolean): List<MessageLocal> {
         var argsObject = ArrayList<Any>()
 
+        val sql = generate(threadid, limit, since, desc, argsObject)
+
+        return template.query(sql, argsObject.toArray(), MessageDao.MESSAGEDAO)
+    }
+
+    private fun generate(threadid: Int, limit: Int, since: Int, desc: Boolean, argsObject: ArrayList<Any>): String {
         var sql = "SELECT * FROM messages WHERE threadid = ? "
         argsObject.add(threadid)
 
@@ -32,7 +37,6 @@ class FlatSort : SortSqlGeneration() {
             sql += "LIMIT ?"
             argsObject.add(limit)
         }
-
-        return template.query(sql, argsObject.toArray(), MessageDao.MESSAGEDAO)
+        return sql
     }
 }
