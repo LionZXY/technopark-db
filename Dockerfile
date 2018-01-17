@@ -36,9 +36,12 @@ RUN /etc/init.d/postgresql start &&\
 RUN echo "host all  all    0.0.0.0/0  trust" >> /etc/postgresql/$POSTGRESV/main/pg_hba.conf
 
 RUN echo "listen_addresses='*'" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
-RUN echo "synchronous_commit=off" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
-RUN echo "full_page_writes = off" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
-RUN echo "wal_buffers = 3MB" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
+RUN echo "synchronous_commit='off'" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
+RUN echo "fsync = 'off'" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
+RUN echo "max_wal_size = 1GB" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
+RUN echo "shared_buffers = 128MB" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
+RUN echo "effective_cache_size = 256MB" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
+RUN echo "work_mem = 16MB" >> /etc/postgresql/$POSTGRESV/main/postgresql.conf
 
 EXPOSE 5432
 
@@ -59,5 +62,5 @@ COPY . .
 RUN ./gradlew clean build
 
 CMD service postgresql start &&\
-    java -jar -Xms300M -Xmx300M ./build/libs/technopark-db-0.1.0.jar
+    java -jar -XX:+UseSerialGC -Xss256k -XX:-TieredCompilation -XX:CICompilerCount=1 -XX:VMThreadStackSize=256 -XX:InitialCodeCacheSize=4096 ./build/libs/technopark-db-0.1.0.jar
 

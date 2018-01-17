@@ -12,24 +12,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 
 @SpringBootApplication
-open class Application : SpringBootServletInitializer() {
-
-    override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder =
-            application.sources(Application::class.java)
-
-
-    @Bean
-    open fun mapperForKotlinTypes(): MappingJackson2HttpMessageConverter {
-        return MappingJackson2HttpMessageConverter().apply { objectMapper = jacksonMapper }
-    }
+open class Application{
 
     companion object {
-        //TODO: Add HTTP2, because faster
-
-        val jacksonMapper = ObjectMapper().registerKotlinModule()
-                .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
-                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-
         @Throws(Exception::class)
         @JvmStatic
         fun main(args: Array<String>) {
